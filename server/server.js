@@ -17,19 +17,60 @@ app.get("/", (req, res) => {
 });
 
 //create the get request
-app.get("/api/students", cors(), async (req, res) => {
-  // const STUDENTS = [
-
-  //     { id: 1, firstName: 'Lisa', lastName: 'Lee' },
-  //     { id: 2, firstName: 'Eileen', lastName: 'Long' },
-  //     { id: 3, firstName: 'Fariba', lastName: 'Dako' },
-  //     { id: 4, firstName: 'Cristina', lastName: 'Rodriguez' },
-  //     { id: 5, firstName: 'Andrea', lastName: 'Trejo' },
+app.get("/api/books", cors(), async (req, res) => {
+  // const BOOKS = [
+  //   {
+  //     id: 1,
+  //     title: "Written in Red",
+  //     author_f: "Anne",
+  //     author_l: "Bishop",
+  //     format: "Book",
+  //     owned: "false",
+  //     read: "true",
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Written in Red",
+  //     author_f: "Anne",
+  //     author_l: "Bishop",
+  //     format: "Audiobook",
+  //     owned: "false",
+  //     read: "true",
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "The Diamond Age: Or, a Young Lady's Illustrated Primer",
+  //     author_f: "Neal",
+  //     author_l: "Stephenson",
+  //     format: "Book",
+  //     owned: "true",
+  //     read: "true",
+  //   },
+  // {
+  //   id: 4,
+  //   title: "",
+  //   author_f: "",
+  //   author_l: "",
+  //   format: "",
+  //   owned: "",
+  //   read: "",
+  // },
+  // {
+  //   id: 5,
+  //   title: "",
+  //   author_f: "",
+  //   author_l: "",
+  //   format: "",
+  //   owned: "",
+  //   read: "",
+  // },
   // ];
-  // res.json(STUDENTS);
+  // res.json(BOOKS);
   try {
-    const { rows: students } = await db.query("SELECT * FROM students");
-    res.send(students);
+    const { rows: books } = await db.query(
+      "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id;"
+    );
+    res.send(books);
   } catch (e) {
     console.log(e);
     return res.status(400).json({ e });
@@ -37,43 +78,44 @@ app.get("/api/students", cors(), async (req, res) => {
 });
 
 //create the POST request
-app.post("/api/students", cors(), async (req, res) => {
-  const newUser = {
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
+app.post("/api/books", cors(), async (req, res) => {
+  const newBook = {
+    book_format_id: req.body.book_format_id,
+    owned: req.body.owned,
+    read: req.body.read,
   };
-  console.log([newUser.firstname, newUser.lastname]);
+  console.log([newBook]);
   const result = await db.query(
-    "INSERT INTO students(firstname, lastname) VALUES($1, $2) RETURNING *",
-    [newUser.firstname, newUser.lastname]
+    "INSERT INTO user_collection(book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
+    [newBook.book_format_id, newBook.owned, newBook.read]
   );
   console.log(result.rows[0]);
   res.json(result.rows[0]);
 });
 
-// delete request
-app.delete("/api/students/:studentId", cors(), async (req, res) => {
-  const studentId = req.params.studentId;
-  //console.log(req.params);
-  await db.query("DELETE FROM students WHERE id=$1", [studentId]);
-  res.status(200).end();
-});
+// // delete request
+// app.delete("/api/students/:studentId", cors(), async (req, res) => {
+//   const studentId = req.params.studentId;
+//   //console.log(req.params);
+//   await db.query("DELETE FROM students WHERE id=$1", [studentId]);
+//   res.status(200).end();
+// });
 
 // Put request - Update request
-app.put("/api/students/:studentId", cors(), async (req, res) => {
-  const studentId = req.params.studentId;
-  const updateStudent = {
-    id: req.body.id,
-    firstname: req.body.firstname,
-    lastname: req.body.lastname,
+app.put("/api/books/:bookId", cors(), async (req, res) => {
+  const bookId = req.params.bookId;
+  const updateBook = {
+    book_format_id: req.body.book_format_id,
+    owned: req.body.owned,
+    read: req.body.read,
   };
   //console.log(req.params);
   // UPDATE students SET lastname = 'TestMarch' WHERE id = 1;
-  console.log(studentId);
-  console.log(updateStudent);
-  const query = `UPDATE students SET lastname=$1, firstname=$2 WHERE id = ${studentId} RETURNING *`;
+  console.log(bookId);
+  console.log(updateBook);
+  const query = `UPDATE user_collection SET owned=$1, read=$2 WHERE id = ${bookId} RETURNING *`;
   console.log(query);
-  const values = [updateStudent.lastname, updateStudent.firstname];
+  const values = [updateBook.owned, updateBook.read];
   try {
     const updated = await db.query(query, values);
     console.log(updated.rows[0]);
