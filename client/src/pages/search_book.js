@@ -1,6 +1,6 @@
 import React from "react";
 
-const AddBook = () => {
+const SearchBook = () => {
   return (
     <div
       style={{
@@ -12,9 +12,9 @@ const AddBook = () => {
         alignItems: "center",
       }}
     >
-      <h1>Add a Book</h1>
+      <h1>Look for a Book</h1>
     </div>
   );
 };
 
-export default AddBook;
+export default SearchBook;

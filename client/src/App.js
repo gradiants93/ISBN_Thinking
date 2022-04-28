@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages";
 import Books from "./pages/books";
 import AddBook from "./pages/add_book";
+import SearchBook from "./pages/search_book";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
           <Route path="/" exact component={Home} />
           <Route path="/books" component={Books} />
           <Route path="/addbook" component={AddBook} />
+          <Route path="/search" component={SearchBook} />
         </Switch>
       </div>
     </Router>

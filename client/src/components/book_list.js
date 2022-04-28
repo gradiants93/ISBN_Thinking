@@ -66,7 +66,7 @@ function BookList() {
 
   return (
     <div className="books">
-      <h2> List of Books </h2>
+      {/* <h2> List of Books </h2> */}
       <ul>
         {books.map((book) => {
           if (book.id === editingBookId) {
@@ -98,7 +98,8 @@ function BookList() {
           }
         })}
       </ul>
-      <Form saveBook={addBook} />
+      {/* add a new book */}
+      {/* <Form saveBook={addBook} /> */}
     </div>
   );
 }

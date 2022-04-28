@@ -79,60 +79,59 @@ const Form = (props) => {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <fieldset>
-        <legend>Owned?</legend>
+    <div>
+      <form onSubmit={handleSubmit}>
         <p>
-          <label>
-            <input
-              type="radio"
-              name="owned"
-              value="true"
-              checked={book.owned === true}
-              onChange={handleOwnedChange}
-            />
-            Yes
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="owned"
-              value="false"
-              checked={book.owned === false}
-              onChange={handleOwnedChange}
-            />
-            No
-          </label>
+          <fieldset style={{ display: "inline" }}>
+            <legend>Owned?</legend>
+            <label>
+              <input
+                type="radio"
+                name="owned"
+                value="true"
+                checked={book.owned === true}
+                onChange={handleOwnedChange}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="owned"
+                value="false"
+                checked={book.owned === false}
+                onChange={handleOwnedChange}
+              />
+              No
+            </label>
+          </fieldset>
+          <fieldset style={{ display: "inline" }}>
+            <legend> Read?</legend>
+            <label>
+              <input
+                type="radio"
+                name="read"
+                required
+                value={book.read}
+                onChange={handleReadChange}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="read"
+                required
+                value={book.read}
+                onChange={handleReadChange}
+              />
+              No
+            </label>
+          </fieldset>
         </p>
-      </fieldset>
-      <fieldset>
-        <legend> Read?</legend>
-        <p>
-          <label>
-            <input
-              type="radio"
-              name="read"
-              required
-              value={book.read}
-              onChange={handleReadChange}
-            />
-            Yes
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="read"
-              required
-              value={book.read}
-              onChange={handleReadChange}
-            />
-            No
-          </label>
-        </p>
-      </fieldset>
-
-      <button type="submit">{!book.id ? "Add" : "Save"}</button>
-    </form>
+        <button type="submit">{!book.id ? "Add" : "Save"}</button>
+      </form>
+    </div>
   );
 };
 

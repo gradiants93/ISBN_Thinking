@@ -15,15 +15,47 @@ const Navbar = () => {
         <Bars />
 
         <NavMenu>
-          <NavLink to="/">Home</NavLink>
-          <NavLink to="/books">Books</NavLink>
-          <NavLink to="/addbook">Add A Book</NavLink>
+          <NavLink
+            exact
+            to="/"
+            activeStyle={{
+              fontWeight: "bold",
+              color: "darkgreen",
+            }}
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/books"
+            activeStyle={{
+              fontWeight: "bold",
+              color: "darkgreen",
+            }}
+          >
+            Books
+          </NavLink>
+          <NavLink
+            to="/addbook"
+            activeStyle={{
+              fontWeight: "bold",
+              color: "darkgreen",
+            }}
+          >
+            Add A Book
+          </NavLink>
+          <NavLink
+            to="/search"
+            activeStyle={{
+              fontWeight: "bold",
+              color: "darkgreen",
+            }}
+          >
+            Search
+          </NavLink>
           {/* Second Nav */}
           {/* <NavBtnLink to='/sign-in'>Sign In</NavBtnLink> */}
         </NavMenu>
-        <NavBtn>
-          <NavBtnLink to="/signin">Sign In</NavBtnLink>
-        </NavBtn>
+        <NavBtn></NavBtn>
       </Nav>
     </>
   );

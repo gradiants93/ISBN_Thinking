@@ -13,6 +13,7 @@ export const Nav = styled.nav`
   /* justify-content: flex-start; */
 `;
 
+// color of links
 export const NavLink = styled(Link)`
   color: #808080;
   display: flex;
