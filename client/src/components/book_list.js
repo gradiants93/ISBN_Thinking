@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import Form from "./form";
 
-function Book_List() {
+function BookList() {
   //Original state in the parent component so the page will know when to render new books
   const [books, setBooks] = useState([]);
 
@@ -103,4 +103,4 @@ function Book_List() {
   );
 }
 
-export default Book_List;
+export default BookList;
