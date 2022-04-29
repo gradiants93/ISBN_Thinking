@@ -1,17 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 
 const AddBook = () => {
   // Initial book
-  const {
-    initialBook = {
-      id: null,
-      author_f: "",
-      author_l: "",
-      format: "",
-      owned: "",
-      read: "",
-    },
-  } = props;
+  const initialBook = {
+    author_f: "",
+    author_l: "",
+    format: "",
+    owned: "",
+    read: "",
+  };
 
   // We're using that initial book as our initial state
   const [book, setBook] = useState(initialBook);
@@ -25,34 +22,35 @@ const AddBook = () => {
 
   //create functions that handle the event of the user typing into the form
   const handleOwnedChange = (event) => {
-    console.log(str2bool(event.target.value));
+    // console.log(str2bool(event.target.value));
     const owned = str2bool(event.target.value);
     setBook((book) => ({ ...book, owned }));
   };
 
   const handleFormatChange = (event) => {
-    const read = event.target.value;
-    setBook((book) => ({ ...book, read }));
+    const format = event.target.value;
+    setBook((book) => ({ ...book, format }));
   };
 
   const handleReadChange = (event) => {
-    const read = event.target.value;
+    const read = str2bool(event.target.value);
     setBook((book) => ({ ...book, read }));
   };
 
   const handleAuthorFChange = (event) => {
-    const read = event.target.value;
-    setBook((book) => ({ ...book, read }));
+    const author_f = event.target.value;
+    setBook((book) => ({ ...book, author_f }));
   };
 
   const handleAuthorLChange = (event) => {
-    const read = event.target.value;
-    setBook((book) => ({ ...book, read }));
+    const author_l = event.target.value;
+    setBook((book) => ({ ...book, author_l }));
   };
   const handleTitleChange = (event) => {
-    const read = event.target.value;
-    setBook((book) => ({ ...book, read }));
+    const title = event.target.value;
+    setBook((book) => ({ ...book, title }));
   };
+
   //A function to handle the post request
   const postBook = (newBook) => {
     return fetch("/api/books", {
@@ -65,14 +63,14 @@ const AddBook = () => {
       })
       .then((data) => {
         console.log("From the post ", data);
-        props.saveBook(data);
       });
   };
 
   // Than handle submit function now needs the logic for the update scenario
   const handleSubmit = (e) => {
     e.preventDefault();
-    postBook(book);
+    console.log(book);
+    // postBook(book);
   };
   return (
     <div
@@ -88,90 +86,116 @@ const AddBook = () => {
       <h1>Add a Book</h1>
       <div>
         <form onSubmit={handleSubmit}>
-          <p>
-            <fieldset>
-              <label>
-                <input
-                  type="text"
-                  id="add-book-title"
-                  placeholder="Title"
-                  required
-                  value={book.title}
-                  onChange={handleTitleChange}
-                />
-                Title
-              </label>
-              <label>
-                <input
-                  type="text"
-                  id="add-authorL"
-                  placeholder="Author Last Name"
-                  required
-                  value={book.author_l}
-                  onChange={handleAuthorLChange}
-                />
-                Author Last
-              </label>
-              <label>
-                <input
-                  type="text"
-                  id="add-authorF"
-                  placeholder="Author First Name"
-                  required
-                  value={book.author_f}
-                  onChange={handleAuthorFChange}
-                />
-                Author First
-              </label>
-            </fieldset>
-            <fieldset style={{ display: "inline" }}>
-              <legend>Owned?</legend>
-              <label>
-                <input
-                  type="radio"
-                  name="owned"
-                  value="true"
-                  checked={book.owned === true}
-                  onChange={handleOwnedChange}
-                />
-                Yes
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="owned"
-                  value="false"
-                  checked={book.owned === false}
-                  onChange={handleOwnedChange}
-                />
-                No
-              </label>
-            </fieldset>
-            <fieldset style={{ display: "inline" }}>
-              <legend> Read?</legend>
-              <label>
-                <input
-                  type="radio"
-                  name="read"
-                  required
-                  value={book.read}
-                  onChange={handleReadChange}
-                />
-                Yes
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="read"
-                  required
-                  value={book.read}
-                  onChange={handleReadChange}
-                />
-                No
-              </label>
-            </fieldset>
-          </p>
-          <button type="submit">{!book.id ? "Add" : "Save"}</button>
+          <fieldset>
+            <label>
+              Title
+              <input
+                type="text"
+                id="add-book-title"
+                placeholder="Title"
+                required
+                value={book.title}
+                onChange={handleTitleChange}
+              />
+            </label>
+            <label>
+              {" "}
+              Author Last
+              <input
+                type="text"
+                id="add-authorL"
+                placeholder="Author Last Name"
+                required
+                value={book.author_l}
+                onChange={handleAuthorLChange}
+              />
+            </label>
+            <label>
+              {" "}
+              Author First
+              <input
+                type="text"
+                id="add-authorF"
+                placeholder="Author First Name"
+                required
+                value={book.author_f}
+                onChange={handleAuthorFChange}
+              />
+            </label>
+          </fieldset>
+          <fieldset style={{ display: "inline" }}>
+            <legend>Format?</legend>
+            <label>
+              <input
+                type="radio"
+                name="format"
+                value="eBook"
+                onChange={handleFormatChange}
+              />
+              eBook
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="format"
+                value="Book"
+                onChange={handleFormatChange}
+              />
+              Book
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="format"
+                value="Audiobook"
+                onChange={handleFormatChange}
+              />
+              Audiobook
+            </label>
+          </fieldset>
+          <fieldset style={{ display: "inline" }}>
+            <legend>Owned?</legend>
+            <label>
+              <input
+                type="radio"
+                name="owned"
+                value="true"
+                onChange={handleOwnedChange}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="owned"
+                value="false"
+                onChange={handleOwnedChange}
+              />
+              No
+            </label>
+          </fieldset>
+          <fieldset style={{ display: "inline" }}>
+            <legend> Read?</legend>
+            <label>
+              <input
+                type="radio"
+                name="read"
+                value="true"
+                onChange={handleReadChange}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="read"
+                value="false"
+                onChange={handleReadChange}
+              />
+              No
+            </label>
+          </fieldset>
+          <button type="submit">Add</button>
         </form>
       </div>
     </div>
