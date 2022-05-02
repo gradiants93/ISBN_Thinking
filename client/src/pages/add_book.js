@@ -1,13 +1,15 @@
 import React, { useState } from "react";
 
-const AddBook = () => {
+const AddNewBook = () => {
   // Initial book
   const initialBook = {
+    title: "",
     author_f: "",
     author_l: "",
     format: "",
     owned: "",
     read: "",
+    isbn: "",
   };
 
   // We're using that initial book as our initial state
@@ -25,6 +27,12 @@ const AddBook = () => {
     // console.log(str2bool(event.target.value));
     const owned = str2bool(event.target.value);
     setBook((book) => ({ ...book, owned }));
+  };
+
+  const handleISBNChange = (event) => {
+    // console.log(str2bool(event.target.value));
+    const isbn = str2bool(event.target.value);
+    setBook((book) => ({ ...book, isbn }));
   };
 
   const handleFormatChange = (event) => {
@@ -52,7 +60,7 @@ const AddBook = () => {
   };
 
   //A function to handle the post request
-  const postBook = (newBook) => {
+  const postNewBook = (newBook) => {
     return fetch("/api/books", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -66,18 +74,17 @@ const AddBook = () => {
       });
   };
 
-  // Than handle submit function now needs the logic for the update scenario
+  // The handle submit function now needs logic for adding to DB and using correct ids
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log(book);
-    // postBook(book);
+    postNewBook(book);
   };
   return (
     <div
       style={{
         display: "flex",
         justifyContent: "Right",
-        alignItems: "Right",
         height: "100vh",
         flexDirection: "column",
         alignItems: "center",
@@ -120,6 +127,19 @@ const AddBook = () => {
                 required
                 value={book.author_f}
                 onChange={handleAuthorFChange}
+              />
+            </label>
+            {/* Add ISBN validation (also auto remove "-") */}
+            <label>
+              {" "}
+              ISBN-13
+              <input
+                type="text"
+                id="add-isbn"
+                placeholder="ISBN-13"
+                required
+                value={book.isbn}
+                onChange={handleISBNChange}
               />
             </label>
           </fieldset>
@@ -202,4 +222,4 @@ const AddBook = () => {
   );
 };
 
-export default AddBook;
+export default AddNewBook;

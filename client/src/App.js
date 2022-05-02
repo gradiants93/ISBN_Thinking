@@ -4,7 +4,7 @@ import BookList from "./components/book_list";
 import Navbar from "./components/Navbar";
 import Home from "./pages";
 import Books from "./pages/books";
-import AddBook from "./pages/add_book";
+import AddNewBook from "./pages/add_book";
 import SearchBook from "./pages/search_book";
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
         <Switch>
           <Route path="/" exact component={Home} />
           <Route path="/books" component={Books} />
-          <Route path="/addbook" component={AddBook} />
+          <Route path="/addnewbook" component={AddNewBook} />
           <Route path="/search" component={SearchBook} />
         </Switch>
       </div>

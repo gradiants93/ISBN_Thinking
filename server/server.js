@@ -80,11 +80,21 @@ app.get("/api/books", cors(), async (req, res) => {
 //create the POST request
 app.post("/api/books", cors(), async (req, res) => {
   const newBook = {
-    book_format_id: req.body.book_format_id,
+    title: req.body.title,
+    author_f: req.body.author_f,
+    author_l: req.body.author_l,
+  };
+  const newBookFormat = {
+    isbn: req.body.isbn,
+    format: req.body.format,
+    book_id: "",
+  };
+  const newUserColl = {
+    book_format_id: "",
     owned: req.body.owned,
     read: req.body.read,
   };
-  console.log([newBook]);
+  console.log([newBook, newBookFormat, newUserColl]);
   const result = await db.query(
     "INSERT INTO user_collection(book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
     [newBook.book_format_id, newBook.owned, newBook.read]

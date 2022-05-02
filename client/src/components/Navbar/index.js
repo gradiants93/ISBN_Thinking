@@ -35,7 +35,7 @@ const Navbar = () => {
             Books
           </NavLink>
           <NavLink
-            to="/addbook"
+            to="/addnewbook"
             activeStyle={{
               fontWeight: "bold",
               color: "darkgreen",
