@@ -61,7 +61,7 @@ const AddNewBook = () => {
 
   //A function to handle the post request
   const postNewBook = (newBook) => {
-    return fetch("/api/books", {
+    return fetch("/api/newbook", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newBook),

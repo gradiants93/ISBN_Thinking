@@ -4,7 +4,7 @@ import BookList from "./components/book_list";
 import Navbar from "./components/Navbar";
 import Home from "./pages";
 import Books from "./pages/books";
-import AddNewBook from "./pages/add_book";
+import AddNewBook from "./pages/add_new_book";
 import SearchBook from "./pages/search_book";
 
 function App() {

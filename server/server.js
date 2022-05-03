@@ -1,4 +1,5 @@
 const express = require("express");
+const async = require("async");
 const cors = require("cors");
 const path = require("path");
 require("dotenv").config();
@@ -18,54 +19,54 @@ app.get("/", (req, res) => {
 
 //create the get request
 app.get("/api/books", cors(), async (req, res) => {
-  // const BOOKS = [
-  //   {
-  //     id: 1,
-  //     title: "Written in Red",
-  //     author_f: "Anne",
-  //     author_l: "Bishop",
-  //     format: "Book",
-  //     owned: "false",
-  //     read: "true",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Written in Red",
-  //     author_f: "Anne",
-  //     author_l: "Bishop",
-  //     format: "Audiobook",
-  //     owned: "false",
-  //     read: "true",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "The Diamond Age: Or, a Young Lady's Illustrated Primer",
-  //     author_f: "Neal",
-  //     author_l: "Stephenson",
-  //     format: "Book",
-  //     owned: "true",
-  //     read: "true",
-  //   },
-  // {
-  //   id: 4,
-  //   title: "",
-  //   author_f: "",
-  //   author_l: "",
-  //   format: "",
-  //   owned: "",
-  //   read: "",
-  // },
-  // {
-  //   id: 5,
-  //   title: "",
-  //   author_f: "",
-  //   author_l: "",
-  //   format: "",
-  //   owned: "",
-  //   read: "",
-  // },
-  // ];
-  // res.json(BOOKS);
+  const mockBooks = [
+    {
+      id: 1,
+      title: "Written in Red",
+      author_f: "Anne",
+      author_l: "Bishop",
+      format: "Book",
+      owned: "false",
+      read: "true",
+    },
+    {
+      id: 2,
+      title: "Written in Red",
+      author_f: "Anne",
+      author_l: "Bishop",
+      format: "Audiobook",
+      owned: "false",
+      read: "true",
+    },
+    {
+      id: 3,
+      title: "The Diamond Age: Or, a Young Lady's Illustrated Primer",
+      author_f: "Neal",
+      author_l: "Stephenson",
+      format: "Book",
+      owned: "true",
+      read: "true",
+    },
+    {
+      id: 4,
+      title: "",
+      author_f: "",
+      author_l: "",
+      format: "",
+      owned: "",
+      read: "",
+    },
+    {
+      id: 5,
+      title: "",
+      author_f: "",
+      author_l: "",
+      format: "",
+      owned: "",
+      read: "",
+    },
+  ];
+  // res.json(mockBooks);
   try {
     const { rows: books } = await db.query(
       "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id;"
@@ -74,6 +75,61 @@ app.get("/api/books", cors(), async (req, res) => {
   } catch (e) {
     console.log(e);
     return res.status(400).json({ e });
+  }
+});
+
+// new book POST
+app.post("/api/newbook", cors(), async (req, res) => {
+  const newBook = {
+    title: req.body.title,
+    author_f: req.body.author_f,
+    author_l: req.body.author_l,
+  };
+  const newBookFormat = {
+    isbn: req.body.isbn,
+    format: req.body.format,
+  };
+  const newUserColl = {
+    owned: req.body.owned,
+    read: req.body.read,
+  };
+
+  async.waterfall(
+    [postToBooks, postToBookFormats, postToUserColl],
+    function (error, result) {
+      console.log(error);
+    }
+  );
+
+  // console.log([newBook, newBookFormat, newUserColl]);
+  async function postToBooks() {
+    const result = await db.query(
+      "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
+      [newBook.title, newBook.author_f, newBook.author_l]
+    );
+    // console.log(result.rows[0]);
+    // console.log(result.rows[0].id);
+    // newBookFormat.id = result.rows[0].id;
+    return result.rows[0].id;
+  }
+
+  async function postToBookFormats(prevResult) {
+    const result = await db.query(
+      "INSERT INTO book_formats (isbn, format, book_id) VALUES ($1,$2,$3) RETURNING *",
+      [newBookFormat.isbn, newBookFormat.format, prevResult]
+    );
+    // console.log(result.rows[0]);
+    // console.log(result.rows[0].id);
+    return result.rows[0].id;
+  }
+
+  async function postToUserColl(prevResult) {
+    const result = await db.query(
+      "INSERT INTO user_collection (book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
+      [prevResult, newUserColl.owned, newUserColl.read]
+    );
+    // console.log(result.rows[0]);
+    res.json(result.rows[0]);
   }
 });
 
