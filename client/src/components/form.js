@@ -1,97 +1,137 @@
 import { useState } from "react";
 
 const Form = (props) => {
-    // Initial student in case that you want to update a new student
-    const {initialStudent = {id: null, 
-                            firstname: "", 
-                            lastname: ""}} = props;
+  // Initial book in case that you want to update a new book
+  const {
+    initialBook = {
+      id: null,
+      author_f: "",
+      author_l: "",
+      format: "",
+      owned: "",
+      read: "",
+    },
+  } = props;
 
-
-    // We're using that initial student as our initial state                       
-    const [student, setStudent] = useState(initialStudent);
-
-    //create functions that handle the event of the user typing into the form
-    const handleNameChange = (event) => {
-        const firstname = event.target.value;
-        setStudent((student) => ({ ...student, firstname }));
-
+  // We're using that initial book as our initial state
+  const [book, setBook] = useState(initialBook);
+  const str2bool = (value) => {
+    if (value && typeof value === "string") {
+      return value.toLowerCase();
     }
+    return value;
+  };
+  //create functions that handle the event of the user typing into the form
+  const handleOwnedChange = (event) => {
+    // const owned = event.target.value;
+    console.log(str2bool(event.target.value));
+    const owned = str2bool(event.target.value);
+    // console.log(owned);
+    setBook((book) => ({ ...book, owned }));
+  };
 
-    const handleLastnameChange = (event) => {
-        const lastname = event.target.value;
-        setStudent((student) => ({ ...student, lastname }));
+  const handleReadChange = (event) => {
+    const read = event.target.value;
+    setBook((book) => ({ ...book, read }));
+  };
 
-    }
-
-    //A function to handle the post request
-    const postStudent = (newStudent) => {
-        return fetch('/api/students', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'}, 
-        body: JSON.stringify(newStudent)
-      }).then((response) => {
-          return response.json()
-      }).then((data) => {
+  //A function to handle the post request
+  const postBook = (newBook) => {
+    return fetch("/api/books", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newBook),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
         console.log("From the post ", data);
-        props.saveStudent(data);
-      
-    });
+        props.saveBook(data);
+      });
+  };
+
+  //a function to handle the Update request
+  const updateBook = (existingBook) => {
+    return fetch(`/api/books/${existingBook.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(existingBook),
+    })
+      .then((response) => {
+        return response.json();
+      })
+      .then((data) => {
+        console.log("From put request ", data);
+        props.saveBook(data);
+      });
+  };
+
+  // Than handle submit function now needs the logic for the update scenario
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (book.id) {
+      updateBook(book);
+    } else {
+      postBook(book);
     }
+  };
 
-    //a function to handle the Update request
-    const updateStudent = (existingStudent) =>{
-        return fetch(`/api/students/${existingStudent.id}`, {
-            method: 'PUT',
-            headers: {'Content-Type': 'application/json'}, 
-            body: JSON.stringify(existingStudent)
-          }).then((response) => {
-              return response.json()
-          }).then((data) => {
-            console.log("From put request ", data);
-            props.saveStudent(data);
-          
-        });
-
-    }
-
-    // Than handle submit function now needs the logic for the update scenario 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if(student.id){
-            updateStudent(student);
-        } else {
-            postStudent(student);
-        } 
-        
-    };
-
-    return (
-        <form onSubmit={handleSubmit}>
-            <fieldset>
-                <label>First Name</label>
-                <input
-                    type="text"
-                    id="add-user-name"
-                    placeholder="First Name"
-                    required
-                    value={student.firstname}
-                    onChange={handleNameChange}
-
-                />
-                <label>Last Name</label>
-                <input
-                    type="text"
-                    id="add-user-lastname"
-                    placeholder="Last Name"
-                    required
-                    value={student.lastname}
-                    onChange={handleLastnameChange}
-                />
-            </fieldset>
-            
-            <button type="submit">{!student.id ? "Add" : "Save"}</button>
-        </form>
-    );
+  return (
+    <div>
+      <form onSubmit={handleSubmit}>
+        <p>
+          <fieldset style={{ display: "inline" }}>
+            <legend>Owned?</legend>
+            <label>
+              <input
+                type="radio"
+                name="owned"
+                value="true"
+                checked={book.owned === true}
+                onChange={handleOwnedChange}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="owned"
+                value="false"
+                checked={book.owned === false}
+                onChange={handleOwnedChange}
+              />
+              No
+            </label>
+          </fieldset>
+          <fieldset style={{ display: "inline" }}>
+            <legend> Read?</legend>
+            <label>
+              <input
+                type="radio"
+                name="read"
+                required
+                value={book.read}
+                onChange={handleReadChange}
+              />
+              Yes
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="read"
+                required
+                value={book.read}
+                onChange={handleReadChange}
+              />
+              No
+            </label>
+          </fieldset>
+        </p>
+        <button type="submit">{!book.id ? "Add" : "Save"}</button>
+      </form>
+    </div>
+  );
 };
 
 export default Form;
