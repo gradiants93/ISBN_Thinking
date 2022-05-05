@@ -5,6 +5,9 @@ function BookList() {
   //Original state in the parent component so the page will know when to render new books
   const [books, setBooks] = useState([]);
 
+  // State for selected filter
+  const [filteredBooks, setFilteredBooks] = useState([]);
+
   // New state to check if we are working on editing a book
   const [editingBookId, setEditingBookId] = useState(null);
 
@@ -21,7 +24,7 @@ function BookList() {
     loadBooks();
   }, []);
 
-  // A function to handle the Delete funtionallity
+  // A function to handle the Delete funtionality
   const onDelete = (book) => {
     return fetch(`/api/books/${book.id}`, {
       method: "DELETE",
@@ -67,36 +70,78 @@ function BookList() {
   return (
     <div className="books">
       {/* <h2> List of Books </h2> */}
+
       <ul>
-        {books.map((book) => {
-          if (book.id === editingBookId) {
-            return <Form initialBook={book} saveBook={updateBook} />;
-          } else {
-            return (
-              <li key={book.id}>
-                {" "}
-                {book.title} {book.author_f} {book.author_l} {book.format}{" "}
-                {book.owned.toString()} {book.read.toString()}
-                <button
-                  type="button"
-                  onClick={() => {
-                    onDelete(book);
-                  }}
-                >
-                  X
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    onEdit(book);
-                  }}
-                >
-                  Edit
-                </button>
-              </li>
-            );
-          }
-        })}
+        <div>
+          <h3>Sort by:</h3>
+          <button
+            onClick={() =>
+              setFilteredBooks(
+                books.filter((event) => event.read.toString() === "true")
+              )
+            }
+          >
+            Read
+          </button>
+          <button
+            onClick={() =>
+              setFilteredBooks(
+                books.filter((event) => event.read.toString() === "false")
+              )
+            }
+          >
+            Haven't Read
+          </button>
+          <button
+            onClick={() =>
+              setFilteredBooks(
+                books.filter((event) => event.owned.toString() === "true")
+              )
+            }
+          >
+            Owned
+          </button>
+          <button
+            onClick={() =>
+              setFilteredBooks(
+                books.filter((event) => event.owned.toString() === "false")
+              )
+            }
+          >
+            Not Owned
+          </button>
+          <button onClick={() => setFilteredBooks(books)}>Reset</button>
+        </div>
+        {filteredBooks &&
+          filteredBooks.map((book) => {
+            if (book.id === editingBookId) {
+              return <Form initialBook={book} saveBook={updateBook} />;
+            } else {
+              return (
+                <li key={book.id}>
+                  {" "}
+                  {book.title} {book.author_f} {book.author_l} {book.format}{" "}
+                  {book.owned.toString()} {book.read.toString()}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onDelete(book);
+                    }}
+                  >
+                    X
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onEdit(book);
+                    }}
+                  >
+                    Edit
+                  </button>
+                </li>
+              );
+            }
+          })}
       </ul>
       {/* add a new book */}
       {/* <Form saveBook={addBook} /> */}
