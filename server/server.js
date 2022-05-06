@@ -21,20 +21,29 @@ app.get("/", (req, res) => {
 
 //creates an endpoint for the route /api/request
 app.get("/api/request", async (req, res) => {
-  let xmlresponse = await fetch(
-    "http://classify.oclc.org/classify2/Classify?isbn=9780886772390&summary=true"
-  );
-  let parsedresponse = await xmlresponse.text();
-  // console.log(parsedresponse);
-  let jsonresponse = convert.xml2json(parsedresponse, {
-    compact: false,
-    nativeType: true,
-    ignoreDeclaration: true,
-    compact: true,
-  });
-  let data = JSON.parse(jsonresponse);
-  console.log(data);
-  res.send(data);
+  try {
+    let isbn = Number(req.query.isbn);
+    console.log(isbn);
+    let xmlresponse = await fetch(
+      `http://classify.oclc.org/classify2/Classify?isbn=${isbn}&summary=true`
+    );
+    let parsedresponse = await xmlresponse.text();
+    // console.log(parsedresponse);
+    let jsonresponse = convert.xml2json(parsedresponse, {
+      compact: false,
+      nativeType: true,
+      ignoreDeclaration: true,
+      compact: true,
+    });
+    let data = JSON.parse(jsonresponse);
+    let formatedRes = {
+      author: data["classify"]["authors"]["author"]["_text"],
+    };
+    console.log(formatedRes);
+    res.send(formatedRes);
+  } catch (err) {
+    console.error("Fetch error: ", err);
+  }
 });
 
 //create the get request

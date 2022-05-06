@@ -22,6 +22,14 @@ const AddApiBook = () => {
     return value;
   };
 
+  // user input ISBN
+  const [isbn, setIsbn] = useState();
+
+  const handleUSERISBNChange = (event) => {
+    const isbn = event.target.value;
+    setIsbn(isbn);
+  };
+
   //create functions that handle the event of the user typing into the form
   const handleOwnedChange = (event) => {
     // console.log(str2bool(event.target.value));
@@ -80,6 +88,20 @@ const AddApiBook = () => {
     console.log(book);
     // postNewBook(book);
   };
+
+  // send request for metadata to classify
+  const handleGET = (e) => {
+    e.preventDefault();
+    console.log(isbn);
+    fetch(`/api/request?isbn=${isbn}`, {
+      method: "get",
+    })
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+      })
+      .catch((err) => console.error(`Error: ${err}`));
+  };
   return (
     <div
       style={{
@@ -90,7 +112,17 @@ const AddApiBook = () => {
         alignItems: "center",
       }}
     >
-      <h1>Add a Book</h1>
+      <h2>Add API Book</h2>
+      <label>
+        <input
+          type="text"
+          id="user-isbn-input"
+          onChange={handleUSERISBNChange}
+        />{" "}
+        Search ISBN
+      </label>
+      <button onClick={handleGET}>Search for book</button>
+      {/* <h1>Add a Book</h1>
       <div>
         <form onSubmit={handleSubmit}>
           <fieldset>
@@ -216,7 +248,7 @@ const AddApiBook = () => {
           </fieldset>
           <button type="submit">Add</button>
         </form>
-      </div>
+      </div> */}
     </div>
   );
 };
