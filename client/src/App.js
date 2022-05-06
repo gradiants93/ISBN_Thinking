@@ -6,6 +6,7 @@ import Home from "./pages";
 import Books from "./pages/books";
 import AddNewBook from "./pages/add_new_book";
 import SearchBook from "./pages/search_book";
+import AddApiBook from "./pages/add_api_book";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/" exact component={Home} />
           <Route path="/books" component={Books} />
           <Route path="/addnewbook" component={AddNewBook} />
+          <Route path="/apibook" component={AddApiBook} />
           <Route path="/search" component={SearchBook} />
         </Switch>
       </div>

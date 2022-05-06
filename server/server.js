@@ -7,6 +7,8 @@ const db = require("../server/db/db-connection.js");
 const REACT_BUILD_DIR = path.join(__dirname, "..", "client", "build");
 const app = express();
 app.use(express.static(REACT_BUILD_DIR));
+const convert = require("xml-js");
+const fetch = require("node-fetch");
 
 const PORT = process.env.PORT || 8080;
 app.use(cors());
@@ -15,6 +17,24 @@ app.use(express.json());
 //creates an endpoint for the route /api
 app.get("/", (req, res) => {
   res.sendFile(path.join(REACT_BUILD_DIR, "index.html"));
+});
+
+//creates an endpoint for the route /api/request
+app.get("/api/request", async (req, res) => {
+  let xmlresponse = await fetch(
+    "http://classify.oclc.org/classify2/Classify?isbn=9780886772390&summary=true"
+  );
+  let parsedresponse = await xmlresponse.text();
+  // console.log(parsedresponse);
+  let jsonresponse = convert.xml2json(parsedresponse, {
+    compact: false,
+    nativeType: true,
+    ignoreDeclaration: true,
+    compact: true,
+  });
+  let data = JSON.parse(jsonresponse);
+  console.log(data);
+  res.send(data);
 });
 
 //create the get request
