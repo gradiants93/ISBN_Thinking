@@ -29,7 +29,7 @@ CREATE TABLE public.book_formats (
     isbn character varying(13),
     format character varying(9),
     book_id integer,
-    creation_date date DEFAULT CURRENT_TIMESTAMP
+    creation_date date DEFAULT TO_CHAR(CURRENT_TIMESTAMP,'YYYYMMDD')
 );
 
 
@@ -66,7 +66,7 @@ CREATE TABLE public.books (
     title character varying(250),
     author_last character varying(250),
     author_first character varying(250),
-    creation_date date DEFAULT CURRENT_TIMESTAMP
+    creation_date date DEFAULT TO_CHAR(CURRENT_TIMESTAMP,'YYYYMMDD')
 );
 
 
@@ -103,7 +103,7 @@ CREATE TABLE public.user_collection (
     book_format_id integer,
     owned boolean,
     read boolean,
-    creation_date date DEFAULT CURRENT_TIMESTAMP
+    creation_date date DEFAULT TO_CHAR(CURRENT_TIMESTAMP,'YYYYMMDD')
 );
 
 

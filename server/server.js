@@ -35,10 +35,32 @@ app.get("/api/request", async (req, res) => {
       ignoreDeclaration: true,
       compact: true,
     });
-    let data = JSON.parse(jsonresponse);
-    let formatedRes = {
-      author: data["classify"]["authors"]["author"]["_text"],
-    };
+    let data = JSON.parse(jsonresponse)["classify"];
+    let formatedRes;
+    // console.log(data);
+    if (data.response._attributes.code == 4) {
+      console.log(
+        "code: " + data.response._attributes.code + " multiwork response"
+      );
+      formatedRes = [];
+      data.works.work.map((item) => {
+        formatedRes.push({
+          author: item["_attributes"]["author"],
+          format: item["_attributes"]["format"],
+          title: item["_attributes"]["title"],
+        });
+      });
+    }
+    if (data.response._attributes.code == 0) {
+      console.log(
+        "code: " + data.response._attributes.code + " single work response"
+      );
+      formatedRes = {
+        author: data["work"]["_attributes"]["author"],
+        format: data["work"]["_attributes"]["format"],
+        title: data["work"]["_attributes"]["title"],
+      };
+    }
     console.log(formatedRes);
     res.send(formatedRes);
   } catch (err) {
