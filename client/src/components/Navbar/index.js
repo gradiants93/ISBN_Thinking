@@ -44,6 +44,15 @@ const Navbar = () => {
             Add A Book
           </NavLink>
           <NavLink
+            to="/apibook"
+            activeStyle={{
+              fontWeight: "bold",
+              color: "darkgreen",
+            }}
+          >
+            Add API Book
+          </NavLink>
+          <NavLink
             to="/search"
             activeStyle={{
               fontWeight: "bold",

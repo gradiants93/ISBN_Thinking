@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 export const Nav = styled.nav`
   background: #63d471;
+  // above changes bar color
   height: 85px;
   display: flex;
   justify-content: space-between;
