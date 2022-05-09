@@ -22,19 +22,12 @@ const Form = (props) => {
     return value;
   };
   //create functions that handle the event of the user typing into the form
-  const handleOwnedChange = (event) => {
-    // const owned = event.target.value;
-    console.log(str2bool(event.target.value));
-    const owned = str2bool(event.target.value);
-    // console.log(owned);
-    setBook((book) => ({ ...book, owned }));
+  const handleChange = (event, fieldName, isBoolean = false) => {
+    const parsedValue = isBoolean
+      ? str2bool(event.target.value)
+      : event.target.value;
+    setBook((book) => ({ ...book, [fieldName]: parsedValue }));
   };
-
-  const handleReadChange = (event) => {
-    const read = event.target.value;
-    setBook((book) => ({ ...book, read }));
-  };
-
   //A function to handle the post request
   const postBook = (newBook) => {
     return fetch("/api/books", {
@@ -86,20 +79,20 @@ const Form = (props) => {
             <label>
               <input
                 type="radio"
-                name="owned"
+                fieldName="owned"
                 value="true"
                 checked={book.owned === true}
-                onChange={handleOwnedChange}
+                onChange={handleChange}
               />
               Yes
             </label>
             <label>
               <input
                 type="radio"
-                name="owned"
+                fieldName="owned"
                 value="false"
                 checked={book.owned === false}
-                onChange={handleOwnedChange}
+                onChange={handleChange}
               />
               No
             </label>
@@ -109,20 +102,20 @@ const Form = (props) => {
             <label>
               <input
                 type="radio"
-                name="read"
+                fieldName="read"
                 required
                 value={book.read}
-                onChange={handleReadChange}
+                onChange={handleChange}
               />
               Yes
             </label>
             <label>
               <input
                 type="radio"
-                name="read"
+                fieldName="read"
                 required
                 value={book.read}
-                onChange={handleReadChange}
+                onChange={handleChange}
               />
               No
             </label>
