@@ -13,7 +13,9 @@ const AddApiBook = () => {
   };
 
   // We're using that initial book as our initial state
-  const [book, setBook] = useState(initialBook);
+  const [books, setBooks] = useState([]);
+  const [book, setBook] = useState();
+  const [apiRes, setAPIRes] = useState(false);
   const str2bool = (value) => {
     if (value && typeof value === "string") {
       if (value.toLowerCase() === "true") return true;
@@ -24,6 +26,7 @@ const AddApiBook = () => {
 
   // user input ISBN
   const [isbn, setIsbn] = useState();
+  let imgURL = "";
 
   const handleUSERISBNChange = (event) => {
     const isbn = event.target.value;
@@ -31,40 +34,11 @@ const AddApiBook = () => {
   };
 
   //create functions that handle the event of the user typing into the form
-  const handleOwnedChange = (event) => {
-    // console.log(str2bool(event.target.value));
-    const owned = str2bool(event.target.value);
-    setBook((book) => ({ ...book, owned }));
-  };
-
-  const handleISBNChange = (event) => {
-    // console.log(str2bool(event.target.value));
-    const isbn = str2bool(event.target.value);
-    setBook((book) => ({ ...book, isbn }));
-  };
-
-  const handleFormatChange = (event) => {
-    const format = event.target.value;
-    setBook((book) => ({ ...book, format }));
-  };
-
-  const handleReadChange = (event) => {
-    const read = str2bool(event.target.value);
-    setBook((book) => ({ ...book, read }));
-  };
-
-  const handleAuthorFChange = (event) => {
-    const author_f = event.target.value;
-    setBook((book) => ({ ...book, author_f }));
-  };
-
-  const handleAuthorLChange = (event) => {
-    const author_l = event.target.value;
-    setBook((book) => ({ ...book, author_l }));
-  };
-  const handleTitleChange = (event) => {
-    const title = event.target.value;
-    setBook((book) => ({ ...book, title }));
+  const handleChange = (event, fieldName, isBoolean = false) => {
+    const parsedValue = isBoolean
+      ? str2bool(event.target.value)
+      : event.target.value;
+    setBook((book) => ({ ...book, [fieldName]: parsedValue }));
   };
 
   //   //A function to handle the post request
@@ -92,13 +66,18 @@ const AddApiBook = () => {
   // send request for metadata to classify
   const handleGET = (e) => {
     e.preventDefault();
-    console.log(isbn);
+    console.log(`Query classify for ${isbn}`);
+    setAPIRes(false);
     fetch(`/api/request?isbn=${isbn}`, {
       method: "get",
     })
       .then((response) => response.json())
       .then((json) => {
         console.log(json);
+        setBooks(json);
+        console.log(json.length);
+        console.log(imgURL);
+        setAPIRes(true);
       })
       .catch((err) => console.error(`Error: ${err}`));
   };
@@ -122,133 +101,40 @@ const AddApiBook = () => {
         Search ISBN
       </label>
       <button onClick={handleGET}>Search for book</button>
-      {/* <h1>Add a Book</h1>
-      <div>
-        <form onSubmit={handleSubmit}>
-          <fieldset>
-            <label>
-              Title
-              <input
-                type="text"
-                id="add-book-title"
-                placeholder="Title"
-                required
-                value={book.title}
-                onChange={handleTitleChange}
-              />
-            </label>
-            <label>
-              {" "}
-              Author Last
-              <input
-                type="text"
-                id="add-authorL"
-                placeholder="Author Last Name"
-                required
-                value={book.author_l}
-                onChange={handleAuthorLChange}
-              />
-            </label>
-            <label>
-              {" "}
-              Author First
-              <input
-                type="text"
-                id="add-authorF"
-                placeholder="Author First Name"
-                required
-                value={book.author_f}
-                onChange={handleAuthorFChange}
-              />
-            </label>
-            <label>
-              {" "}
-              ISBN-13
-              <input
-                type="text"
-                id="add-isbn"
-                placeholder="ISBN-13"
-                required
-                value={book.isbn}
-                onChange={handleISBNChange}
-              />
-            </label>
-          </fieldset>
-          <fieldset style={{ display: "inline" }}>
-            <legend>Format?</legend>
-            <label>
-              <input
-                type="radio"
-                name="format"
-                value="eBook"
-                onChange={handleFormatChange}
-              />
-              eBook
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="format"
-                value="Book"
-                onChange={handleFormatChange}
-              />
-              Book
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="format"
-                value="Audiobook"
-                onChange={handleFormatChange}
-              />
-              Audiobook
-            </label>
-          </fieldset>
-          <fieldset style={{ display: "inline" }}>
-            <legend>Owned?</legend>
-            <label>
-              <input
-                type="radio"
-                name="owned"
-                value="true"
-                onChange={handleOwnedChange}
-              />
-              Yes
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="owned"
-                value="false"
-                onChange={handleOwnedChange}
-              />
-              No
-            </label>
-          </fieldset>
-          <fieldset style={{ display: "inline" }}>
-            <legend> Read?</legend>
-            <label>
-              <input
-                type="radio"
-                name="read"
-                value="true"
-                onChange={handleReadChange}
-              />
-              Yes
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="read"
-                value="false"
-                onChange={handleReadChange}
-              />
-              No
-            </label>
-          </fieldset>
-          <button type="submit">Add</button>
-        </form>
-      </div> */}
+
+      <div className="APIbook">
+        <h2> API Return </h2>
+        <ul>
+          {apiRes ? (
+            books.length ? (
+              books.map((el, index) => (
+                <li key={index}>
+                  <img src={imgURL} />
+                  <strong>Title:</strong> {el.title}
+                  <br />
+                  <strong>Format:</strong> {el.format}
+                  <br />
+                  <strong>Author:</strong> {el.author}
+                  <br />
+                  <button type="button">Add book?</button>
+                </li>
+              ))
+            ) : (
+              <>
+                <img src={imgURL} />
+                <li key={1}>
+                  <strong>Title:</strong> {books.title} <br />
+                  <strong>Author:</strong>
+                  {books.author} <br />
+                  <strong>Format:</strong> {books.format}
+                  <br />
+                  <button type="button">Add book?</button>
+                </li>
+              </>
+            )
+          ) : null}{" "}
+        </ul>
+      </div>
     </div>
   );
 };
