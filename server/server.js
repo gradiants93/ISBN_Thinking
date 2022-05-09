@@ -1,4 +1,5 @@
 const express = require("express");
+const async = require("async");
 const cors = require("cors");
 const path = require("path");
 require("dotenv").config();
@@ -18,54 +19,6 @@ app.get("/", (req, res) => {
 
 //create the get request
 app.get("/api/books", cors(), async (req, res) => {
-  // const BOOKS = [
-  //   {
-  //     id: 1,
-  //     title: "Written in Red",
-  //     author_f: "Anne",
-  //     author_l: "Bishop",
-  //     format: "Book",
-  //     owned: "false",
-  //     read: "true",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Written in Red",
-  //     author_f: "Anne",
-  //     author_l: "Bishop",
-  //     format: "Audiobook",
-  //     owned: "false",
-  //     read: "true",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "The Diamond Age: Or, a Young Lady's Illustrated Primer",
-  //     author_f: "Neal",
-  //     author_l: "Stephenson",
-  //     format: "Book",
-  //     owned: "true",
-  //     read: "true",
-  //   },
-  // {
-  //   id: 4,
-  //   title: "",
-  //   author_f: "",
-  //   author_l: "",
-  //   format: "",
-  //   owned: "",
-  //   read: "",
-  // },
-  // {
-  //   id: 5,
-  //   title: "",
-  //   author_f: "",
-  //   author_l: "",
-  //   format: "",
-  //   owned: "",
-  //   read: "",
-  // },
-  // ];
-  // res.json(BOOKS);
   try {
     const { rows: books } = await db.query(
       "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id;"
@@ -77,19 +30,76 @@ app.get("/api/books", cors(), async (req, res) => {
   }
 });
 
-//create the POST request
-app.post("/api/books", cors(), async (req, res) => {
+// new book POST
+app.post("/api/newbook", cors(), async (req, res) => {
   const newBook = {
-    book_format_id: req.body.book_format_id,
+    title: req.body.title,
+    author_f: req.body.author_f,
+    author_l: req.body.author_l,
+  };
+  const newBookFormat = {
+    isbn: req.body.isbn,
+    format: req.body.format,
+  };
+  const newUserColl = {
     owned: req.body.owned,
     read: req.body.read,
   };
-  console.log([newBook]);
+
+  async.waterfall(
+    [postToBooks, postToBookFormats, postToUserColl],
+    function (error, result) {
+      console.log(error);
+    }
+  );
+
+  async function postToBooks() {
+    const result = await db.query(
+      "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
+      [newBook.title, newBook.author_f, newBook.author_l]
+    );
+    return result.rows[0].id;
+  }
+
+  async function postToBookFormats(prevResult) {
+    const result = await db.query(
+      "INSERT INTO book_formats (isbn, format, book_id) VALUES ($1,$2,$3) RETURNING *",
+      [newBookFormat.isbn, newBookFormat.format, prevResult]
+    );
+    return result.rows[0].id;
+  }
+
+  async function postToUserColl(prevResult) {
+    const result = await db.query(
+      "INSERT INTO user_collection (book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
+      [prevResult, newUserColl.owned, newUserColl.read]
+    );
+    res.json(result.rows[0]);
+  }
+});
+
+//create the POST request
+app.post("/api/books", cors(), async (req, res) => {
+  const newBook = {
+    title: req.body.title,
+    author_f: req.body.author_f,
+    author_l: req.body.author_l,
+  };
+  const newBookFormat = {
+    isbn: req.body.isbn,
+    format: req.body.format,
+    book_id: "",
+  };
+  const newUserColl = {
+    book_format_id: "",
+    owned: req.body.owned,
+    read: req.body.read,
+  };
+  console.log([newBook, newBookFormat, newUserColl]);
   const result = await db.query(
     "INSERT INTO user_collection(book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
     [newBook.book_format_id, newBook.owned, newBook.read]
   );
-  console.log(result.rows[0]);
   res.json(result.rows[0]);
 });
 
@@ -109,12 +119,7 @@ app.put("/api/books/:bookId", cors(), async (req, res) => {
     owned: req.body.owned,
     read: req.body.read,
   };
-  //console.log(req.params);
-  // UPDATE students SET lastname = 'TestMarch' WHERE id = 1;
-  console.log(bookId);
-  console.log(updateBook);
   const query = `UPDATE user_collection SET owned=$1, read=$2 WHERE id = ${bookId} RETURNING *`;
-  console.log(query);
   const values = [updateBook.owned, updateBook.read];
   try {
     const updated = await db.query(query, values);
