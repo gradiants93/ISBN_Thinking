@@ -23,40 +23,11 @@ const AddNewBook = () => {
   };
 
   //create functions that handle the event of the user typing into the form
-  const handleOwnedChange = (event) => {
-    // console.log(str2bool(event.target.value));
-    const owned = str2bool(event.target.value);
-    setBook((book) => ({ ...book, owned }));
-  };
-
-  const handleISBNChange = (event) => {
-    // console.log(str2bool(event.target.value));
-    const isbn = str2bool(event.target.value);
-    setBook((book) => ({ ...book, isbn }));
-  };
-
-  const handleFormatChange = (event) => {
-    const format = event.target.value;
-    setBook((book) => ({ ...book, format }));
-  };
-
-  const handleReadChange = (event) => {
-    const read = str2bool(event.target.value);
-    setBook((book) => ({ ...book, read }));
-  };
-
-  const handleAuthorFChange = (event) => {
-    const author_f = event.target.value;
-    setBook((book) => ({ ...book, author_f }));
-  };
-
-  const handleAuthorLChange = (event) => {
-    const author_l = event.target.value;
-    setBook((book) => ({ ...book, author_l }));
-  };
-  const handleTitleChange = (event) => {
-    const title = event.target.value;
-    setBook((book) => ({ ...book, title }));
+  const handleChange = (event, fieldName, isBoolean = false) => {
+    const parsedValue = isBoolean
+      ? str2bool(event.target.value)
+      : event.target.value;
+    setBook((book) => ({ ...book, [fieldName]: parsedValue }));
   };
 
   //A function to handle the post request
@@ -77,7 +48,6 @@ const AddNewBook = () => {
   // The handle submit function now needs logic for adding to DB and using correct ids
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(book);
     postNewBook(book);
   };
   return (
@@ -98,11 +68,11 @@ const AddNewBook = () => {
               Title
               <input
                 type="text"
-                id="add-book-title"
+                fieldName="title"
                 placeholder="Title"
                 required
                 value={book.title}
-                onChange={handleTitleChange}
+                onChange={handleChange}
               />
             </label>
             <label>
@@ -110,11 +80,11 @@ const AddNewBook = () => {
               Author Last
               <input
                 type="text"
-                id="add-authorL"
+                fieldName="author_l"
                 placeholder="Author Last Name"
                 required
                 value={book.author_l}
-                onChange={handleAuthorLChange}
+                onChange={handleChange}
               />
             </label>
             <label>
@@ -122,11 +92,11 @@ const AddNewBook = () => {
               Author First
               <input
                 type="text"
-                id="add-authorF"
-                placeholder="Author First Name"
+                fieldName="author_f"
+                placeholder="Author First and Middle Name"
                 required
                 value={book.author_f}
-                onChange={handleAuthorFChange}
+                onChange={handleChange}
               />
             </label>
             {/* Add ISBN validation (also auto remove "-") */}
@@ -135,11 +105,11 @@ const AddNewBook = () => {
               ISBN-13
               <input
                 type="text"
-                id="add-isbn"
+                fieldName="isbn"
                 placeholder="ISBN-13"
                 required
                 value={book.isbn}
-                onChange={handleISBNChange}
+                onChange={handleChange}
               />
             </label>
           </fieldset>
@@ -148,27 +118,27 @@ const AddNewBook = () => {
             <label>
               <input
                 type="radio"
-                name="format"
+                fieldName="format"
                 value="eBook"
-                onChange={handleFormatChange}
+                onChange={handleChange}
               />
               eBook
             </label>
             <label>
               <input
                 type="radio"
-                name="format"
+                fieldName="format"
                 value="Book"
-                onChange={handleFormatChange}
+                onChange={handleChange}
               />
               Book
             </label>
             <label>
               <input
                 type="radio"
-                name="format"
+                fieldName="format"
                 value="Audiobook"
-                onChange={handleFormatChange}
+                onChange={handleChange}
               />
               Audiobook
             </label>
@@ -178,18 +148,18 @@ const AddNewBook = () => {
             <label>
               <input
                 type="radio"
-                name="owned"
+                fieldName="owned"
                 value="true"
-                onChange={handleOwnedChange}
+                onChange={handleChange}
               />
               Yes
             </label>
             <label>
               <input
                 type="radio"
-                name="owned"
+                fieldName="owned"
                 value="false"
-                onChange={handleOwnedChange}
+                onChange={handleChange}
               />
               No
             </label>
@@ -199,18 +169,18 @@ const AddNewBook = () => {
             <label>
               <input
                 type="radio"
-                name="read"
+                fieldName="read"
                 value="true"
-                onChange={handleReadChange}
+                onChange={handleChange}
               />
               Yes
             </label>
             <label>
               <input
                 type="radio"
-                name="read"
+                fieldName="read"
                 value="false"
-                onChange={handleReadChange}
+                onChange={handleChange}
               />
               No
             </label>

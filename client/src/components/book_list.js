@@ -26,7 +26,6 @@ function BookList() {
     return fetch(`/api/books/${book.id}`, {
       method: "DELETE",
     }).then((response) => {
-      //console.log(response);
       if (response.ok) {
         loadBooks();
       }
@@ -35,8 +34,6 @@ function BookList() {
 
   // A function to handle the Add a new Book funtionality
   const addBook = (newBook) => {
-    //console.log(newBook);
-    //postBook(newBook);
     setBooks((books) => [...books, newBook]);
   };
 
