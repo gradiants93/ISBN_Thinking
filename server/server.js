@@ -130,29 +130,29 @@ app.post("/api/newbook", cors(), async (req, res) => {
 });
 
 //create the POST request
-app.post("/api/books", cors(), async (req, res) => {
-  const newBook = {
-    title: req.body.title,
-    author_f: req.body.author_f,
-    author_l: req.body.author_l,
-  };
-  const newBookFormat = {
-    isbn: req.body.isbn,
-    format: req.body.format,
-    book_id: "",
-  };
-  const newUserColl = {
-    book_format_id: "",
-    owned: req.body.owned,
-    read: req.body.read,
-  };
-  console.log([newBook, newBookFormat, newUserColl]);
-  const result = await db.query(
-    "INSERT INTO user_collection(book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
-    [newBook.book_format_id, newBook.owned, newBook.read]
-  );
-  res.json(result.rows[0]);
-});
+// app.post("/api/books", cors(), async (req, res) => {
+//   const newBook = {
+//     title: req.body.title,
+//     author_f: req.body.author_f,
+//     author_l: req.body.author_l,
+//   };
+//   const newBookFormat = {
+//     isbn: req.body.isbn,
+//     format: req.body.format,
+//     book_id: "",
+//   };
+//   const newUserColl = {
+//     book_format_id: "",
+//     owned: req.body.owned,
+//     read: req.body.read,
+//   };
+//   console.log([newBook, newBookFormat, newUserColl]);
+//   const result = await db.query(
+//     "INSERT INTO user_collection(book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
+//     [newBook.book_format_id, newBook.owned, newBook.read]
+//   );
+//   res.json(result.rows[0]);
+// });
 
 // // delete request
 // app.delete("/api/students/:studentId", cors(), async (req, res) => {
@@ -181,6 +181,184 @@ app.put("/api/books/:bookId", cors(), async (req, res) => {
     return res.status(400).json({ e });
   }
 });
+
+// Get - query to see if have specific book
+app.get(
+  "/api/findbook/:title/:isbn/:format/:author_f/:author_l",
+  cors(),
+  async (req, res) => {
+    const apiBook = {
+      title: req.params.title,
+      author_f: req.params.author_f,
+      author_l: req.params.author_l,
+    };
+    const apiBookFormat = {
+      isbn: req.params.isbn,
+      format: req.params.format,
+    };
+    const UserColl = {
+      owned: req.params.owned,
+      read: req.params.read,
+    };
+
+    async.waterfall(
+      [queryBooks, queryBookFormats, queryUserColl],
+      function (error, result) {
+        console.log(error);
+      }
+    );
+
+    async function queryBooks() {
+      console.log("query books");
+      const result = await db.query(
+        "SELECT * FROM books WHERE lower(title)=$1 AND lower(author_first)=$2 AND lower(author_last)=$3",
+        [
+          apiBook.title.toLowerCase(),
+          apiBook.author_f.toLowerCase(),
+          apiBook.author_l.toLowerCase(),
+        ]
+      );
+      console.log(result.rows[0]);
+      if (result.rows[0] === undefined) {
+        console.log("Insert to books");
+        const resultPOST = await db.query(
+          "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
+          [apiBook.title, apiBook.author_f, apiBook.author_l]
+        );
+        return resultPOST.rows[0].id;
+      }
+      return result.rows[0].id;
+    }
+
+    async function queryBookFormats(prevResult) {
+      console.log("query book formats");
+      const result = await db.query(
+        "SELECT * FROM book_formats WHERE book_id=$1 AND lower(format)=$2 AND isbn=$3",
+        [prevResult, apiBookFormat.format.toLowerCase(), apiBookFormat.isbn]
+      );
+      console.log(result.rows[0]);
+      if (result.rows[0] === undefined) {
+        console.log("insert to book formats");
+        const resultPOST = await db.query(
+          "INSERT INTO book_formats (isbn, format, book_id) VALUES ($1,$2,$3) RETURNING *",
+          [apiBookFormat.isbn, apiBookFormat.format, prevResult]
+        );
+        return resultPOST.rows[0].id;
+      }
+      return result.rows[0].id;
+    }
+
+    async function queryUserColl(prevResult) {
+      console.log("query user coll");
+      const result = await db.query(
+        "SELECT * FROM user_collection WHERE book_format_id=$1",
+        [prevResult]
+      );
+      console.log(result.rows[0]);
+      if (result.rows[0] === undefined) {
+        return res.json("Choose the formats owned and read");
+        // need to ask for data flags and then create user_coll record
+
+        //   // const resultPOST = await db.query(
+        //   //   "INSERT INTO user_collection (book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
+        //   //   [prevResult, newUserColl.owned, newUserColl.read]
+        //   // );
+      }
+      return res.json(result.rows[0]);
+    }
+  }
+);
+
+// create user collection record
+app.get(
+  "/api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read",
+  cors(),
+  async (req, res) => {
+    const apiBook = {
+      title: req.params.title,
+      author_f: req.params.author_f,
+      author_l: req.params.author_l,
+    };
+    const apiBookFormat = {
+      isbn: req.params.isbn,
+      format: req.params.format,
+    };
+    const UserColl = {
+      owned: req.params.owned,
+      read: req.params.read,
+    };
+
+    async.waterfall(
+      [queryBooks, queryBookFormats, queryUserColl],
+      function (error, result) {
+        console.log(error);
+      }
+    );
+
+    async function queryBooks() {
+      console.log("query books");
+      const result = await db.query(
+        "SELECT * FROM books WHERE lower(title)=$1 AND lower(author_first)=$2 AND lower(author_last)=$3",
+        [
+          apiBook.title.toLowerCase(),
+          apiBook.author_f.toLowerCase(),
+          apiBook.author_l.toLowerCase(),
+        ]
+      );
+      console.log(result.rows[0]);
+      if (result.rows[0] === undefined) {
+        console.log("Insert to books");
+        const resultPOST = await db.query(
+          "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
+          [apiBook.title, apiBook.author_f, apiBook.author_l]
+        );
+        return resultPOST.rows[0].id;
+      }
+      return result.rows[0].id;
+    }
+
+    async function queryBookFormats(prevResult) {
+      console.log("query book formats");
+      const result = await db.query(
+        "SELECT * FROM book_formats WHERE book_id=$1 AND lower(format)=$2 AND isbn=$3",
+        [prevResult, apiBookFormat.format.toLowerCase(), apiBookFormat.isbn]
+      );
+      console.log(result.rows[0]);
+      if (result.rows[0] === undefined) {
+        console.log("insert to book formats");
+        const resultPOST = await db.query(
+          "INSERT INTO book_formats (isbn, format, book_id) VALUES ($1,$2,$3) RETURNING *",
+          [apiBookFormat.isbn, apiBookFormat.format, prevResult]
+        );
+        return resultPOST.rows[0].id;
+      }
+      return result.rows[0].id;
+    }
+
+    async function queryUserColl(prevResult) {
+      console.log("query user coll");
+      const result = await db.query(
+        "SELECT * FROM user_collection WHERE book_format_id=$1",
+        [prevResult]
+      );
+      console.log(result.rows[0]);
+      if (result.rows[0] === undefined) {
+        const resultPOST = await db.query(
+          "INSERT INTO user_collection (owned, read, book_format_id) VALUES ($1, $2, $3) RETURNING *",
+          [UserColl.owned, UserColl.read, prevResult]
+        );
+        return res.json(resultPOST.rows[0]);
+        // need to ask for data flags and then create user_coll record
+
+        //   // const resultPOST = await db.query(
+        //   //   "INSERT INTO user_collection (book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
+        //   //   [prevResult, newUserColl.owned, newUserColl.read]
+        //   // );
+      }
+      return res.json(result.rows[0]);
+    }
+  }
+);
 
 // console.log that your server is up and running
 app.listen(PORT, () => {
