@@ -209,7 +209,7 @@ app.get(
     );
 
     async function queryBooks() {
-      console.log("query books");
+      console.log("query books for", apiBook);
       const result = await db.query(
         "SELECT * FROM books WHERE lower(title)=$1 AND lower(author_first)=$2 AND lower(author_last)=$3",
         [
@@ -237,6 +237,7 @@ app.get(
         [prevResult, apiBookFormat.format.toLowerCase(), apiBookFormat.isbn]
       );
       console.log(result.rows[0]);
+      apiBook.book_id = prevResult;
       if (result.rows[0] === undefined) {
         console.log("insert to book formats");
         const resultPOST = await db.query(
@@ -254,9 +255,11 @@ app.get(
         "SELECT * FROM user_collection WHERE book_format_id=$1",
         [prevResult]
       );
+      apiBook.book_format_id = prevResult;
       console.log(result.rows[0]);
       if (result.rows[0] === undefined) {
-        return res.json("Choose the formats owned and read");
+        apiBook.user_coll_id = false;
+        return res.json(apiBook);
         // need to ask for data flags and then create user_coll record
 
         //   // const resultPOST = await db.query(

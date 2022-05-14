@@ -1,22 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const AddApiBook = () => {
-  // Initial book
-  const initialBook = {
-    title: "",
-    author_f: "",
-    author_l: "",
-    format: "",
-    owned: "",
-    read: "",
-    isbn: "",
-  };
-
-  // We're using that initial book as our initial state
   const [books, setBooks] = useState([]);
-  const [book, setBook] = useState();
+  const [indBook, setIndBook] = useState();
   const [apiRes, setAPIRes] = useState(false);
   const [dbRes, setDBRes] = useState(false);
+  const [queryBook, setQueryBook] = useState();
+  // user input ISBN
+  const [isbn, setIsbn] = useState();
+  let imgURL = "";
+
   const str2bool = (value) => {
     if (value && typeof value === "string") {
       if (value.toLowerCase() === "true") return true;
@@ -25,78 +18,74 @@ const AddApiBook = () => {
     return value;
   };
 
-  // user input ISBN
-  const [isbn, setIsbn] = useState();
-  let imgURL = "";
-
   const handleUSERISBNChange = (event) => {
-    const isbn = event.target.value;
-    setIsbn(isbn);
-    setBook((book) => ({ ...book, isbn: isbn }));
+    const uisbn = event.target.value;
+    setIsbn(uisbn);
+    setIndBook((state) => ({ ...state, isbn: uisbn }));
   };
 
   //create functions that handle the event of the user typing into the form
-  const handleChange = (event, fieldName, isBoolean = false) => {
+  const handleChange = (event, isBoolean = false) => {
     const parsedValue = isBoolean
       ? str2bool(event.target.value)
       : event.target.value;
-    setBook((book) => ({ ...book, [fieldName]: parsedValue }));
-    console.log(book);
+    setIndBook(() => ({
+      ...indBook,
+      [event.target.dataset.fieldname]: parsedValue,
+    }));
   };
 
   // Query to see if have this specific book/format
-  const queryBook = ({ title, format, isbn, author_f, author_l }) => {
-    console.log(book); // query sends correct info
-    return fetch(
-      `/api/findbook/${title}/${isbn}/${format}/${author_f}/${author_l}`,
+  const queryDB = async (title, authorl, authorf, format) => {
+    const response = await fetch(
+      `/api/findbook/${title}/${indBook.isbn}/${format}/${authorf}/${authorl}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       }
-    )
-      .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        console.log("From the post ", data);
-        if (data === "Choose the formats owned and read") {
-          //redirect?
-          setDBRes(true);
-        }
-      });
+    );
+    const data = await response.json();
+    console.log("From the post queryBook", data);
+    if (data.user_coll_id === false) {
+      //redirect?
+      setDBRes(true);
+    }
   };
 
-  const createUserColl = ({
-    title,
-    format,
-    isbn,
-    author_f,
-    author_l,
-    owned,
-    read,
-  }) => {
-    return fetch(
-      `/api/createusercoll/${title}/${isbn}/${format}/${author_f}/${author_l}/${owned}/${read}`,
-      {
-        method: "GET",
-        headers: { "Content-Type": "application/json" },
-      }
-    )
-      .then((response) => {
-        // console.log(response.json());
-        return response.json();
-      })
-      .then((data) => {
-        console.log("From the post ", data);
-      });
-  };
+  if (false) {
+    const createUserColl = ({
+      title,
+      format,
+      isbn,
+      author_f,
+      author_l,
+      owned,
+      read,
+    }) => {
+      return fetch(
+        `/api/createusercoll/${title}/${isbn}/${format}/${author_f}/${author_l}/${owned}/${read}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      )
+        .then((response) => {
+          // console.log(response.json());
+          return response.json();
+        })
+        .then((data) => {
+          console.log("From the post ", data);
+        });
+    };
+    createUserColl();
+  }
 
   // The handle submit function now needs logic for adding to DB and using correct ids
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(book);
+    console.log("book" + indBook);
     // createUserColl(book);
-    setDBRes(false);
+    setDBRes(() => false);
   };
 
   const handleClick = (e) => {
@@ -104,15 +93,18 @@ const AddApiBook = () => {
     const author_f = e.target.dataset.author.split(", ")[1];
     const title = e.target.dataset.title;
     const format = e.target.dataset.format;
-
-    setBook((book) => ({
-      ...book,
+    const newBook = {
       author_l: author_l,
       author_f: author_f,
       title: title,
       format: format,
+    };
+
+    setIndBook(() => ({
+      ...indBook,
+      ...newBook,
     }));
-    queryBook(book);
+    queryDB(title, author_l, author_f, format);
   };
 
   // send request for metadata to classify
@@ -125,12 +117,13 @@ const AddApiBook = () => {
     })
       .then((response) => response.json())
       .then((json) => {
-        console.log(json);
-        setBooks(json);
+        console.log(json, " classify resonse");
+        setBooks(() => json);
         setAPIRes(true);
       })
       .catch((err) => console.error(`Error: ${err}`));
   };
+
   return (
     <div
       style={{
@@ -159,7 +152,7 @@ const AddApiBook = () => {
             books.map((el, index) => (
               <div className="single-book" key={index}>
                 <p>
-                  <img src={imgURL} />
+                  <img src={imgURL} alt={el.title} />
                   <strong>Title:</strong> {el.title}
                   <br />
                   <strong>Format:</strong> {el.format}
@@ -182,7 +175,7 @@ const AddApiBook = () => {
             <>
               <div className="singlebook" key={1}>
                 <p>
-                  <img src={imgURL} />
+                  <img src={imgURL} alt={books.title} />
                   <strong>Title:</strong> {books.title} <br />
                   <strong>Author:</strong>
                   {books.author} <br />
@@ -211,22 +204,26 @@ const AddApiBook = () => {
                   <label>
                     <input
                       type="radio"
-                      fieldName="owned"
+                      data-fieldname="owned"
                       name="owned"
                       required
                       value="true"
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e, true);
+                      }}
                     />
                     Yes
                   </label>
                   <label>
                     <input
                       type="radio"
-                      fieldName="owned"
+                      data-fieldname="owned"
                       required
                       name="owned"
                       value="false"
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e, true);
+                      }}
                     />
                     No
                   </label>
@@ -236,11 +233,13 @@ const AddApiBook = () => {
                   <label>
                     <input
                       type="radio"
-                      fieldName="read"
+                      data-fieldname="read"
                       name="read"
                       required
                       value="true"
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e, true);
+                      }}
                     />
                     Yes
                   </label>
@@ -248,10 +247,12 @@ const AddApiBook = () => {
                     <input
                       type="radio"
                       name="read"
-                      fieldName="read"
+                      data-fieldname="read"
                       required
                       value="false"
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e, true);
+                      }}
                     />
                     No
                   </label>

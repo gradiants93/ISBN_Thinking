@@ -151,6 +151,7 @@ const AddNewBook = () => {
                 fieldName="owned"
                 value="true"
                 onChange={handleChange}
+                // change to pass bool
               />
               Yes
             </label>
