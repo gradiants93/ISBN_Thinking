@@ -5,37 +5,11 @@ const AddApiBook = () => {
   const [indBook, setIndBook] = useState();
   const [apiRes, setAPIRes] = useState(false);
   const [dbRes, setDBRes] = useState(false);
-  const [queryBook, setQueryBook] = useState();
   // user input ISBN
   const [isbn, setIsbn] = useState();
   let imgURL = "";
 
-  const str2bool = (value) => {
-    if (value && typeof value === "string") {
-      if (value.toLowerCase() === "true") return true;
-      if (value.toLowerCase() === "false") return false;
-    }
-    return value;
-  };
-
-  const handleUSERISBNChange = (event) => {
-    const uisbn = event.target.value;
-    setIsbn(uisbn);
-    setIndBook((state) => ({ ...state, isbn: uisbn }));
-  };
-
-  //create functions that handle the event of the user typing into the form
-  const handleChange = (event, isBoolean = false) => {
-    const parsedValue = isBoolean
-      ? str2bool(event.target.value)
-      : event.target.value;
-    setIndBook(() => ({
-      ...indBook,
-      [event.target.dataset.fieldname]: parsedValue,
-    }));
-  };
-
-  // Query to see if have this specific book/format
+  // Query DB for specific book/format and make new records if needed
   const queryDB = async (title, authorl, authorf, format) => {
     const response = await fetch(
       `/api/findbook/${title}/${indBook.isbn}/${format}/${authorf}/${authorl}`,
@@ -52,42 +26,68 @@ const AddApiBook = () => {
     }
   };
 
-  if (false) {
-    const createUserColl = ({
-      title,
-      format,
-      isbn,
-      author_f,
-      author_l,
-      owned,
-      read,
-    }) => {
-      return fetch(
-        `/api/createusercoll/${title}/${isbn}/${format}/${author_f}/${author_l}/${owned}/${read}`,
-        {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-        }
-      )
-        .then((response) => {
-          // console.log(response.json());
-          return response.json();
-        })
-        .then((data) => {
-          console.log("From the post ", data);
-        });
-    };
-    createUserColl();
-  }
+  // Query DB for needed FK ids and create new user coll record
+  const createUserColl = ({
+    title,
+    format,
+    isbn,
+    author_f,
+    author_l,
+    owned,
+    read,
+  }) => {
+    return fetch(
+      `/api/createusercoll/${title}/${isbn}/${format}/${author_f}/${author_l}/${owned}/${read}`,
+      {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      }
+    )
+      .then((response) => {
+        // console.log(response.json());
+        return response.json();
+      })
+      .then((data) => {
+        console.log("From the post ", data);
+      });
+  };
 
-  // The handle submit function now needs logic for adding to DB and using correct ids
+  // turn strings to bool for owned/read
+  const str2bool = (value) => {
+    if (value && typeof value === "string") {
+      if (value.toLowerCase() === "true") return true;
+      if (value.toLowerCase() === "false") return false;
+    }
+    return value;
+  };
+
+  // handler for isbn ONLY
+  const handleUSERISBNChange = (event) => {
+    const uisbn = event.target.value;
+    setIsbn(uisbn);
+    setIndBook((state) => ({ ...state, isbn: uisbn }));
+  };
+
+  // handler for value selection in forms and setting state
+  const handleChange = (event, isBoolean = false) => {
+    const parsedValue = isBoolean
+      ? str2bool(event.target.value)
+      : event.target.value;
+    setIndBook(() => ({
+      ...indBook,
+      [event.target.dataset.fieldname]: parsedValue,
+    }));
+  };
+
+  // Create new user coll record for queried book
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("book" + indBook);
-    // createUserColl(book);
+    createUserColl(indBook);
     setDBRes(() => false);
   };
 
+  // Send queryDB and make new records if needed
   const handleClick = (e) => {
     const author_l = e.target.dataset.author.split(", ")[0];
     const author_f = e.target.dataset.author.split(", ")[1];
