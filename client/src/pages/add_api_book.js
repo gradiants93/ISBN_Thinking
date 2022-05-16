@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 const AddApiBook = () => {
   const [books, setBooks] = useState([]);
@@ -7,12 +7,13 @@ const AddApiBook = () => {
   const [dbRes, setDBRes] = useState(false);
   // user input ISBN
   const [isbn, setIsbn] = useState();
-  let imgURL = "";
+  const [collRecord, setCollRecord] = useState();
+  const [showRec, setShowRec] = useState(false);
 
   // Query DB for specific book/format and make new records if needed
-  const queryDB = async (title, authorl, authorf, format) => {
+  const queryDB = async (title, author_l, author_f, format) => {
     const response = await fetch(
-      `/api/findbook/${title}/${indBook.isbn}/${format}/${authorf}/${authorl}`,
+      `/api/findbook/${title}/${indBook.isbn}/${format}/${author_f}/${author_l}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -20,14 +21,22 @@ const AddApiBook = () => {
     );
     const data = await response.json();
     console.log("From the post queryBook", data);
+    setCollRecord(() => ({
+      ...data,
+      read: bool2str(data.read),
+      owned: bool2str(data.owned),
+    }));
     if (data.user_coll_id === false) {
-      //redirect?
       setDBRes(true);
+    } else {
+      alert("You already own that book");
+      setAPIRes(false);
+      setShowRec(true);
     }
   };
 
   // Query DB for needed FK ids and create new user coll record
-  const createUserColl = ({
+  const createUserColl = async ({
     title,
     format,
     isbn,
@@ -36,20 +45,19 @@ const AddApiBook = () => {
     owned,
     read,
   }) => {
-    return fetch(
+    const response = await fetch(
       `/api/createusercoll/${title}/${isbn}/${format}/${author_f}/${author_l}/${owned}/${read}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
       }
-    )
-      .then((response) => {
-        // console.log(response.json());
-        return response.json();
-      })
-      .then((data) => {
-        console.log("From the post ", data);
-      });
+    );
+    const data = await response.json();
+    console.log("From the post createUserColl", data);
+    setCollRecord(() => ({ ...data }));
+    setDBRes(false);
+    setAPIRes(false);
+    setShowRec(true);
   };
 
   // turn strings to bool for owned/read
@@ -57,6 +65,14 @@ const AddApiBook = () => {
     if (value && typeof value === "string") {
       if (value.toLowerCase() === "true") return true;
       if (value.toLowerCase() === "false") return false;
+    }
+    return value;
+  };
+  // convert bool to Yes/No for showing record to viewer
+  const bool2str = (value) => {
+    if (typeof value === "boolean") {
+      if (value === true) return "Yes";
+      if (value === false) return "No";
     }
     return value;
   };
@@ -99,7 +115,6 @@ const AddApiBook = () => {
       title: title,
       format: format,
     };
-
     setIndBook(() => ({
       ...indBook,
       ...newBook,
@@ -117,11 +132,16 @@ const AddApiBook = () => {
     })
       .then((response) => response.json())
       .then((json) => {
-        console.log(json, " classify resonse");
+        console.log(json, " classify response");
         setBooks(() => json);
         setAPIRes(true);
       })
-      .catch((err) => console.error(`Error: ${err}`));
+      .catch((err) => {
+        console.error(`Error: ${err}`);
+        alert(
+          `Could not find any works for ISBN: ${isbn}. Please check the ISBN and try again`
+        );
+      });
   };
 
   return (
@@ -146,56 +166,90 @@ const AddApiBook = () => {
       <button onClick={handleGET}>Search for book</button>
 
       <div className="APIbook">
-        <h2> API Return </h2>
         {apiRes ? (
-          books.length ? (
-            books.map((el, index) => (
-              <div className="single-book" key={index}>
-                <p>
-                  <img src={imgURL} alt={el.title} />
-                  <strong>Title:</strong> {el.title}
-                  <br />
-                  <strong>Format:</strong> {el.format}
-                  <br />
-                  <strong>Author:</strong> {el.author}
-                  <br />
-                </p>
-                <button
-                  type="button"
-                  data-title={el.title}
-                  data-author={el.author}
-                  data-format={el.format}
-                  onClick={handleClick}
-                >
-                  Add book?
-                </button>
-              </div>
-            ))
-          ) : (
-            <>
-              <div className="singlebook" key={1}>
-                <p>
-                  <img src={imgURL} alt={books.title} />
-                  <strong>Title:</strong> {books.title} <br />
-                  <strong>Author:</strong>
-                  {books.author} <br />
-                  <strong>Format:</strong> {books.format}
-                  <br />
-                </p>
-                <button
-                  type="button"
-                  data-title={books.title}
-                  data-author={books.author}
-                  data-format={books.format}
-                  onClick={handleClick}
-                >
-                  Add book?
-                </button>
-              </div>
-            </>
-          )
+          // Show on API response
+          <>
+            <h2> API Return </h2>
+            {books.length ? (
+              // Multiple work response
+              books.map((el, index) => (
+                <div className="multi-book" key={index}>
+                  <p>
+                    {/* Need to move images to left and text to right */}
+                    <img
+                      src={`https://covers.openlibrary.org/b/isbn/${isbn}-S.jpg`}
+                      alt={`${el.title} cover`}
+                    />
+                    <br />
+                    <strong>Title:</strong> {el.title}
+                    <br />
+                    <strong>Format:</strong> {el.format}
+                    <br />
+                    <strong>Author:</strong> {el.author}
+                    <br />
+                  </p>
+                  <button
+                    type="button"
+                    data-title={el.title}
+                    data-author={el.author}
+                    data-format={el.format}
+                    onClick={handleClick}
+                  >
+                    Add book?
+                  </button>
+                </div>
+              ))
+            ) : (
+              // Single work response
+              <>
+                <div className="single-book" key={1}>
+                  <p>
+                    <img
+                      src={`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`}
+                      alt={`${books.title} cover`}
+                    />
+                    <br />
+                    <strong>Title:</strong> {books.title} <br />
+                    <strong>Author:</strong>
+                    {books.author} <br />
+                    <strong>Format:</strong> {books.format}
+                    <br />
+                  </p>
+                  <button
+                    type="button"
+                    data-title={books.title}
+                    data-author={books.author}
+                    data-format={books.format}
+                    onClick={handleClick}
+                  >
+                    Add book?
+                  </button>
+                </div>
+              </>
+            )}
+          </>
         ) : null}{" "}
+        {collRecord ? (
+          // show on have record
+          <>
+            <h3>Your Book Record</h3>
+            <img
+              src={`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`}
+              alt={`${collRecord.title} cover`}
+            />
+            <p>
+              <strong>Title:</strong> {collRecord.title} <br />
+              <strong>Author:</strong> {collRecord.author_first}{" "}
+              {collRecord.author_last}
+              <br />
+              <strong>Format:</strong> {collRecord.format} <br />
+              <strong>Owned:</strong> {collRecord.owned} <br />
+              <strong>Read:</strong> {collRecord.read}
+            </p>
+          </>
+        ) : null}
         {dbRes ? (
+          // Show on do not have record and need to add to coll record
           <>
             <form onSubmit={handleSubmit}>
               <div>

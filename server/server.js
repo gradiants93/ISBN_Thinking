@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
   res.sendFile(path.join(REACT_BUILD_DIR, "index.html"));
 });
 
-//creates an endpoint for the route /api/request
+// classify query book isbn /api/request
 app.get("/api/request", async (req, res) => {
   try {
     let isbn = Number(req.query.isbn);
@@ -68,7 +68,7 @@ app.get("/api/request", async (req, res) => {
   }
 });
 
-//create the get request
+// Show all user book records with book info /api/books
 app.get("/api/books", cors(), async (req, res) => {
   try {
     const { rows: books } = await db.query(
@@ -81,7 +81,7 @@ app.get("/api/books", cors(), async (req, res) => {
   }
 });
 
-// new book POST
+// manually add new book POST /api/newbook
 app.post("/api/newbook", cors(), async (req, res) => {
   const newBook = {
     title: req.body.title,
@@ -129,40 +129,15 @@ app.post("/api/newbook", cors(), async (req, res) => {
   }
 });
 
-//create the POST request
-// app.post("/api/books", cors(), async (req, res) => {
-//   const newBook = {
-//     title: req.body.title,
-//     author_f: req.body.author_f,
-//     author_l: req.body.author_l,
-//   };
-//   const newBookFormat = {
-//     isbn: req.body.isbn,
-//     format: req.body.format,
-//     book_id: "",
-//   };
-//   const newUserColl = {
-//     book_format_id: "",
-//     owned: req.body.owned,
-//     read: req.body.read,
-//   };
-//   console.log([newBook, newBookFormat, newUserColl]);
-//   const result = await db.query(
-//     "INSERT INTO user_collection(book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
-//     [newBook.book_format_id, newBook.owned, newBook.read]
-//   );
-//   res.json(result.rows[0]);
-// });
+// delete request
+app.delete("/api/books/:bookId", cors(), async (req, res) => {
+  const usercollId = req.params.studentId;
+  //console.log(req.params);
+  await db.query("DELETE FROM students WHERE id=$1", [studentId]);
+  res.status(200).end();
+});
 
-// // delete request
-// app.delete("/api/students/:studentId", cors(), async (req, res) => {
-//   const studentId = req.params.studentId;
-//   //console.log(req.params);
-//   await db.query("DELETE FROM students WHERE id=$1", [studentId]);
-//   res.status(200).end();
-// });
-
-// Put request - Update request
+// Update user coll record PUT /api/books/:bookId
 app.put("/api/books/:bookId", cors(), async (req, res) => {
   const bookId = req.params.bookId;
   const updateBook = {
@@ -182,7 +157,7 @@ app.put("/api/books/:bookId", cors(), async (req, res) => {
   }
 });
 
-// Get - query to see if have specific book
+// Query DB for specific book GET /api/findbook/:title/:isbn/:format/:author_f/:author_l
 app.get(
   "/api/findbook/:title/:isbn/:format/:author_f/:author_l",
   cors(),
@@ -220,59 +195,51 @@ app.get(
       );
       console.log(result.rows[0]);
       if (result.rows[0] === undefined) {
-        console.log("Insert to books");
-        const resultPOST = await db.query(
-          "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
-          [apiBook.title, apiBook.author_f, apiBook.author_l]
-        );
-        return resultPOST.rows[0].id;
+        console.log("No record of book");
+        return false;
       }
       return result.rows[0].id;
     }
 
     async function queryBookFormats(prevResult) {
       console.log("query book formats");
+      apiBook.book_id = prevResult;
+      if (prevResult == false) {
+        return false;
+      }
       const result = await db.query(
         "SELECT * FROM book_formats WHERE book_id=$1 AND lower(format)=$2 AND isbn=$3",
         [prevResult, apiBookFormat.format.toLowerCase(), apiBookFormat.isbn]
       );
       console.log(result.rows[0]);
-      apiBook.book_id = prevResult;
       if (result.rows[0] === undefined) {
-        console.log("insert to book formats");
-        const resultPOST = await db.query(
-          "INSERT INTO book_formats (isbn, format, book_id) VALUES ($1,$2,$3) RETURNING *",
-          [apiBookFormat.isbn, apiBookFormat.format, prevResult]
-        );
-        return resultPOST.rows[0].id;
+        console.log("No record of format");
+        return false;
       }
       return result.rows[0].id;
     }
 
     async function queryUserColl(prevResult) {
       console.log("query user coll");
+      apiBook.book_format_id = prevResult;
+      if (prevResult == false) {
+        return false;
+      }
       const result = await db.query(
-        "SELECT * FROM user_collection WHERE book_format_id=$1",
+        "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id WHERE book_format_id=$1",
         [prevResult]
       );
-      apiBook.book_format_id = prevResult;
       console.log(result.rows[0]);
       if (result.rows[0] === undefined) {
         apiBook.user_coll_id = false;
         return res.json(apiBook);
-        // need to ask for data flags and then create user_coll record
-
-        //   // const resultPOST = await db.query(
-        //   //   "INSERT INTO user_collection (book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
-        //   //   [prevResult, newUserColl.owned, newUserColl.read]
-        //   // );
       }
       return res.json(result.rows[0]);
     }
   }
 );
 
-// create user collection record
+// create user collection record for specific format in DB GET /api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read
 app.get(
   "/api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read",
   cors(),
@@ -351,12 +318,6 @@ app.get(
           [UserColl.owned, UserColl.read, prevResult]
         );
         return res.json(resultPOST.rows[0]);
-        // need to ask for data flags and then create user_coll record
-
-        //   // const resultPOST = await db.query(
-        //   //   "INSERT INTO user_collection (book_format_id, owned, read) VALUES($1, $2, $3) RETURNING *",
-        //   //   [prevResult, newUserColl.owned, newUserColl.read]
-        //   // );
       }
       return res.json(result.rows[0]);
     }
