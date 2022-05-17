@@ -21,14 +21,22 @@ const AddApiBook = () => {
     );
     const data = await response.json();
     console.log("From the post queryBook", data);
-    setCollRecord(() => ({
-      ...data,
+    setIndBook(() => ({
+      ...indBook,
+      author_f: data.author_first,
+      author_l: data.author_last,
+      title: data.title,
+      format: data.format,
+      book_id: data.book_id,
+      book_format_id: data.book_format_id,
       read: bool2str(data.read),
       owned: bool2str(data.owned),
     }));
-    if (data.user_coll_id === false) {
+    if (data.id === undefined) {
       setDBRes(true);
+      //   console.log("Dont have record ", indBook);
     } else {
+      setCollRecord(() => ({ ...indBook }));
       alert("You already own that book");
       setAPIRes(false);
       setShowRec(true);
@@ -36,17 +44,10 @@ const AddApiBook = () => {
   };
 
   // Query DB for needed FK ids and create new user coll record
-  const createUserColl = async ({
-    title,
-    format,
-    isbn,
-    author_f,
-    author_l,
-    owned,
-    read,
-  }) => {
+  const createUserColl = async () => {
+    console.log(indBook);
     const response = await fetch(
-      `/api/createusercoll/${title}/${isbn}/${format}/${author_f}/${author_l}/${owned}/${read}`,
+      `/api/createusercoll/${indBook.title}/${indBook.isbn}/${indBook.format}/${indBook.author_f}/${indBook.author_l}/${indBook.owned}/${indBook.read}/${indBook.book_id}/${indBook.book_format_id}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -54,7 +55,13 @@ const AddApiBook = () => {
     );
     const data = await response.json();
     console.log("From the post createUserColl", data);
-    setCollRecord(() => ({ ...data }));
+    setCollRecord(() => ({
+      ...data,
+      author_f: data.author_first,
+      author_l: data.author_last,
+      read: bool2str(data.read),
+      owned: bool2str(data.owned),
+    }));
     setDBRes(false);
     setAPIRes(false);
     setShowRec(true);
@@ -98,9 +105,7 @@ const AddApiBook = () => {
   // Create new user coll record for queried book
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("book" + indBook);
-    createUserColl(indBook);
-    setDBRes(() => false);
+    createUserColl();
   };
 
   // Send queryDB and make new records if needed
@@ -119,6 +124,7 @@ const AddApiBook = () => {
       ...indBook,
       ...newBook,
     }));
+    console.log(newBook);
     queryDB(title, author_l, author_f, format);
   };
 
@@ -229,7 +235,7 @@ const AddApiBook = () => {
             )}
           </>
         ) : null}{" "}
-        {collRecord ? (
+        {showRec ? (
           // show on have record
           <>
             <h3>Your Book Record</h3>
@@ -239,8 +245,8 @@ const AddApiBook = () => {
             />
             <p>
               <strong>Title:</strong> {collRecord.title} <br />
-              <strong>Author:</strong> {collRecord.author_first}{" "}
-              {collRecord.author_last}
+              <strong>Author:</strong> {collRecord.author_f}{" "}
+              {collRecord.author_l}
               <br />
               <strong>Format:</strong> {collRecord.format} <br />
               <strong>Owned:</strong> {collRecord.owned} <br />

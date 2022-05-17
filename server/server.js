@@ -131,9 +131,9 @@ app.post("/api/newbook", cors(), async (req, res) => {
 
 // delete request
 app.delete("/api/books/:bookId", cors(), async (req, res) => {
-  const usercollId = req.params.studentId;
-  //console.log(req.params);
-  await db.query("DELETE FROM students WHERE id=$1", [studentId]);
+  const usercollId = req.params.bookId;
+  console.log(`delete usercoll record id ${usercollId}`);
+  await db.query("DELETE FROM user_collection WHERE id=$1", [usercollId]);
   res.status(200).end();
 });
 
@@ -166,14 +166,8 @@ app.get(
       title: req.params.title,
       author_f: req.params.author_f,
       author_l: req.params.author_l,
-    };
-    const apiBookFormat = {
       isbn: req.params.isbn,
       format: req.params.format,
-    };
-    const UserColl = {
-      owned: req.params.owned,
-      read: req.params.read,
     };
 
     async.waterfall(
@@ -196,7 +190,7 @@ app.get(
       console.log(result.rows[0]);
       if (result.rows[0] === undefined) {
         console.log("No record of book");
-        return false;
+        return undefined;
       }
       return result.rows[0].id;
     }
@@ -204,54 +198,64 @@ app.get(
     async function queryBookFormats(prevResult) {
       console.log("query book formats");
       apiBook.book_id = prevResult;
-      if (prevResult == false) {
-        return false;
+      let result;
+      if (apiBook.book_id === undefined) {
+        ("Don't need to query, ln 209");
+        return undefined;
+      } else {
+        result = await db.query(
+          "SELECT * FROM book_formats WHERE book_id=$1 AND lower(format)=$2 AND isbn=$3",
+          [prevResult, apiBook.format.toLowerCase(), apiBook.isbn]
+        );
+        console.log(result.rows[0]);
+        if (result.rows[0] === undefined) {
+          console.log("No record of format");
+          result.rows[0].id = undefined;
+        }
+        return result.rows[0].id;
       }
-      const result = await db.query(
-        "SELECT * FROM book_formats WHERE book_id=$1 AND lower(format)=$2 AND isbn=$3",
-        [prevResult, apiBookFormat.format.toLowerCase(), apiBookFormat.isbn]
-      );
-      console.log(result.rows[0]);
-      if (result.rows[0] === undefined) {
-        console.log("No record of format");
-        return false;
-      }
-      return result.rows[0].id;
     }
 
     async function queryUserColl(prevResult) {
       console.log("query user coll");
       apiBook.book_format_id = prevResult;
-      if (prevResult == false) {
-        return false;
-      }
-      const result = await db.query(
-        "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id WHERE book_format_id=$1",
-        [prevResult]
-      );
-      console.log(result.rows[0]);
-      if (result.rows[0] === undefined) {
-        apiBook.user_coll_id = false;
+      let result;
+      if (apiBook.book_format_id == undefined) {
+        apiBook.user_coll_id = undefined;
+        console.log("don't need to query", apiBook);
         return res.json(apiBook);
+      } else {
+        result = await db.query(
+          "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read, user_collection.book_format_id, book_formats.book_id from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id WHERE book_format_id=$1",
+          [prevResult]
+        );
+        console.log(result.rows[0], "238");
+        if (result.rows[0] === undefined) {
+          apiBook.id = undefined;
+          console.log("no dice", apiBook);
+          return res.json(apiBook);
+        } else {
+          console.log("found something", result.rows[0]);
+          return res.json(result.rows[0]);
+        }
       }
-      return res.json(result.rows[0]);
     }
   }
 );
 
 // create user collection record for specific format in DB GET /api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read
 app.get(
-  "/api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read",
+  "/api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read/:book_id/:book_format_id",
   cors(),
   async (req, res) => {
     const apiBook = {
       title: req.params.title,
       author_f: req.params.author_f,
       author_l: req.params.author_l,
-    };
-    const apiBookFormat = {
+      book_id: req.params.book_id,
       isbn: req.params.isbn,
       format: req.params.format,
+      book_format_id: req.params.book_format_id,
     };
     const UserColl = {
       owned: req.params.owned,
@@ -266,61 +270,80 @@ app.get(
     );
 
     async function queryBooks() {
-      console.log("query books");
-      const result = await db.query(
-        "SELECT * FROM books WHERE lower(title)=$1 AND lower(author_first)=$2 AND lower(author_last)=$3",
-        [
-          apiBook.title.toLowerCase(),
-          apiBook.author_f.toLowerCase(),
-          apiBook.author_l.toLowerCase(),
-        ]
-      );
-      console.log(result.rows[0]);
-      if (result.rows[0] === undefined) {
-        console.log("Insert to books");
+      console.log(apiBook, UserColl);
+      console.log("query books ln 274");
+      if (apiBook.book_id === "undefined") {
+        // const result = await db.query(
+        //   "SELECT * FROM books WHERE lower(title)=$1 AND lower(author_first)=$2 AND lower(author_last)=$3",
+        //   [
+        //     apiBook.title.toLowerCase(),
+        //     apiBook.author_f.toLowerCase(),
+        //     apiBook.author_l.toLowerCase(),
+        //   ]
+        // );
+        // console.log(result.rows[0]);
+        // if (result.rows[0] === undefined) {
+        console.log("Insert to books ln 288");
         const resultPOST = await db.query(
           "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
           [apiBook.title, apiBook.author_f, apiBook.author_l]
         );
+        apiBook.book_id = resultPOST.rows[0].id;
         return resultPOST.rows[0].id;
+        // }
+        // return result.rows[0].id;
+      } else {
+        console.log("dont need to query books ln 276");
+        return apiBook.book_id;
       }
-      return result.rows[0].id;
     }
 
     async function queryBookFormats(prevResult) {
-      console.log("query book formats");
-      const result = await db.query(
-        "SELECT * FROM book_formats WHERE book_id=$1 AND lower(format)=$2 AND isbn=$3",
-        [prevResult, apiBookFormat.format.toLowerCase(), apiBookFormat.isbn]
-      );
-      console.log(result.rows[0]);
-      if (result.rows[0] === undefined) {
-        console.log("insert to book formats");
+      console.log("query book formats ln 302");
+      if (apiBook.book_format_id === "undefined") {
+        console.log("insert to book formats ln 313");
         const resultPOST = await db.query(
           "INSERT INTO book_formats (isbn, format, book_id) VALUES ($1,$2,$3) RETURNING *",
-          [apiBookFormat.isbn, apiBookFormat.format, prevResult]
+          [apiBook.isbn, apiBook.format, prevResult]
         );
+        apiBook.book_format_id = resultPOST.rows[0].id;
         return resultPOST.rows[0].id;
+      } else {
+        // const result = await db.query(
+        //   "SELECT * FROM book_formats WHERE book_id=$1 AND lower(format)=$2 AND isbn=$3",
+        //   [prevResult, apiBook.format.toLowerCase(), apiBook.isbn]
+        // );
+        // console.log(result.rows[0]);
+        // if (result.rows[0] === undefined) {
+        console.log("dont need to query format ln 304");
+        return apiBook.book_format_id;
       }
-      return result.rows[0].id;
+      //   return result.rows[0].id;
+      // }
     }
 
     async function queryUserColl(prevResult) {
-      console.log("query user coll");
+      console.log("query user coll ln 326");
+      // const result = await db.query(
+      //   "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id WHERE book_format_id=$1",
+      //   [prevResult]
+      // );
+      // console.log(result.rows[0]);
+      // if (result.rows[0] === undefined) {
+      const resultPOST = await db.query(
+        "INSERT INTO user_collection (owned, read, book_format_id) VALUES ($1, $2, $3) RETURNING *",
+        [UserColl.owned, UserColl.read, prevResult]
+      );
+      console.log("successful post", resultPOST.rows[0]);
       const result = await db.query(
-        "SELECT * FROM user_collection WHERE book_format_id=$1",
+        "SELECT user_collection.id, books.title, books.author_last, books.author_first, book_formats.isbn, book_formats.format, user_collection.owned, user_collection.read from user_collection JOIN book_formats on user_collection.book_format_id = book_formats.id JOIN books on book_formats.book_id = books.id WHERE book_format_id=$1",
         [prevResult]
       );
-      console.log(result.rows[0]);
-      if (result.rows[0] === undefined) {
-        const resultPOST = await db.query(
-          "INSERT INTO user_collection (owned, read, book_format_id) VALUES ($1, $2, $3) RETURNING *",
-          [UserColl.owned, UserColl.read, prevResult]
-        );
-        return res.json(resultPOST.rows[0]);
-      }
+      console.log("successful query");
       return res.json(result.rows[0]);
     }
+    //   return res.json(result.rows[0]);
+    // }
   }
 );
 
