@@ -85,8 +85,8 @@ app.get("/api/books", cors(), async (req, res) => {
 app.post("/api/newbook", cors(), async (req, res) => {
   const newBook = {
     title: req.body.title,
-    author_f: req.body.author_f,
-    author_l: req.body.author_l,
+    author_first: req.body.author_first,
+    author_last: req.body.author_last,
   };
   const newBookFormat = {
     isbn: req.body.isbn,
@@ -107,7 +107,7 @@ app.post("/api/newbook", cors(), async (req, res) => {
   async function postToBooks() {
     const result = await db.query(
       "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
-      [newBook.title, newBook.author_f, newBook.author_l]
+      [newBook.title, newBook.author_first, newBook.author_last]
     );
     return result.rows[0].id;
   }
@@ -157,15 +157,15 @@ app.put("/api/books/:bookId", cors(), async (req, res) => {
   }
 });
 
-// Query DB for specific book GET /api/findbook/:title/:isbn/:format/:author_f/:author_l
+// Query DB for specific book GET /api/findbook/:title/:isbn/:format/:author_first/:author_last
 app.get(
-  "/api/findbook/:title/:isbn/:format/:author_f/:author_l",
+  "/api/findbook/:title/:isbn/:format/:author_first/:author_last",
   cors(),
   async (req, res) => {
     const apiBook = {
       title: req.params.title,
-      author_f: req.params.author_f,
-      author_l: req.params.author_l,
+      author_first: req.params.author_first,
+      author_last: req.params.author_last,
       isbn: req.params.isbn,
       format: req.params.format,
     };
@@ -183,8 +183,8 @@ app.get(
         "SELECT * FROM books WHERE lower(title)=$1 AND lower(author_first)=$2 AND lower(author_last)=$3",
         [
           apiBook.title.toLowerCase(),
-          apiBook.author_f.toLowerCase(),
-          apiBook.author_l.toLowerCase(),
+          apiBook.author_first.toLowerCase(),
+          apiBook.author_last.toLowerCase(),
         ]
       );
       console.log(result.rows[0]);
@@ -243,15 +243,15 @@ app.get(
   }
 );
 
-// create user collection record for specific format in DB GET /api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read
+// create user collection record for specific format in DB GET /api/createusercoll/:title/:isbn/:format/:author_first/:author_last/:owned/:read
 app.get(
-  "/api/createusercoll/:title/:isbn/:format/:author_f/:author_l/:owned/:read/:book_id/:book_format_id",
+  "/api/createusercoll/:title/:isbn/:format/:author_first/:author_last/:owned/:read/:book_id/:book_format_id",
   cors(),
   async (req, res) => {
     const apiBook = {
       title: req.params.title,
-      author_f: req.params.author_f,
-      author_l: req.params.author_l,
+      author_first: req.params.author_first,
+      author_last: req.params.author_last,
       book_id: req.params.book_id,
       isbn: req.params.isbn,
       format: req.params.format,
@@ -277,8 +277,8 @@ app.get(
         //   "SELECT * FROM books WHERE lower(title)=$1 AND lower(author_first)=$2 AND lower(author_last)=$3",
         //   [
         //     apiBook.title.toLowerCase(),
-        //     apiBook.author_f.toLowerCase(),
-        //     apiBook.author_l.toLowerCase(),
+        //     apiBook.author_first.toLowerCase(),
+        //     apiBook.author_last.toLowerCase(),
         //   ]
         // );
         // console.log(result.rows[0]);
@@ -286,7 +286,7 @@ app.get(
         console.log("Insert to books ln 288");
         const resultPOST = await db.query(
           "INSERT INTO books (title, author_first, author_last) VALUES ($1,$2,$3) RETURNING *",
-          [apiBook.title, apiBook.author_f, apiBook.author_l]
+          [apiBook.title, apiBook.author_first, apiBook.author_last]
         );
         apiBook.book_id = resultPOST.rows[0].id;
         return resultPOST.rows[0].id;

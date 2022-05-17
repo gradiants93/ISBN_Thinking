@@ -7,13 +7,12 @@ const AddApiBook = () => {
   const [dbRes, setDBRes] = useState(false);
   // user input ISBN
   const [isbn, setIsbn] = useState();
-  const [collRecord, setCollRecord] = useState();
   const [showRec, setShowRec] = useState(false);
 
   // Query DB for specific book/format and make new records if needed
-  const queryDB = async (title, author_l, author_f, format) => {
+  const queryDB = async (title, author_last, author_first, format) => {
     const response = await fetch(
-      `/api/findbook/${title}/${indBook.isbn}/${format}/${author_f}/${author_l}`,
+      `/api/findbook/${title}/${indBook.isbn}/${format}/${author_first}/${author_last}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -21,22 +20,28 @@ const AddApiBook = () => {
     );
     const data = await response.json();
     console.log("From the post queryBook", data);
-    setIndBook(() => ({
-      ...indBook,
-      author_f: data.author_first,
-      author_l: data.author_last,
+    const newResponse = {
+      author_first: data.author_first,
+      author_last: data.author_last,
       title: data.title,
       format: data.format,
       book_id: data.book_id,
       book_format_id: data.book_format_id,
       read: bool2str(data.read),
       owned: bool2str(data.owned),
+    };
+    setIndBook(() => ({
+      ...indBook,
+      ...newResponse,
     }));
     if (data.id === undefined) {
       setDBRes(true);
       //   console.log("Dont have record ", indBook);
     } else {
-      setCollRecord(() => ({ ...indBook }));
+      setIndBook(() => ({
+        ...indBook,
+        ...newResponse,
+      }));
       alert("You already own that book");
       setAPIRes(false);
       setShowRec(true);
@@ -47,7 +52,7 @@ const AddApiBook = () => {
   const createUserColl = async () => {
     console.log(indBook);
     const response = await fetch(
-      `/api/createusercoll/${indBook.title}/${indBook.isbn}/${indBook.format}/${indBook.author_f}/${indBook.author_l}/${indBook.owned}/${indBook.read}/${indBook.book_id}/${indBook.book_format_id}`,
+      `/api/createusercoll/${indBook.title}/${indBook.isbn}/${indBook.format}/${indBook.author_first}/${indBook.author_last}/${indBook.owned}/${indBook.read}/${indBook.book_id}/${indBook.book_format_id}`,
       {
         method: "GET",
         headers: { "Content-Type": "application/json" },
@@ -55,10 +60,10 @@ const AddApiBook = () => {
     );
     const data = await response.json();
     console.log("From the post createUserColl", data);
-    setCollRecord(() => ({
+    setIndBook(() => ({
       ...data,
-      author_f: data.author_first,
-      author_l: data.author_last,
+      author_first: data.author_first,
+      author_last: data.author_last,
       read: bool2str(data.read),
       owned: bool2str(data.owned),
     }));
@@ -88,7 +93,6 @@ const AddApiBook = () => {
   const handleUSERISBNChange = (event) => {
     const uisbn = event.target.value;
     setIsbn(uisbn);
-    setIndBook((state) => ({ ...state, isbn: uisbn }));
   };
 
   // handler for value selection in forms and setting state
@@ -110,13 +114,13 @@ const AddApiBook = () => {
 
   // Send queryDB and make new records if needed
   const handleClick = (e) => {
-    const author_l = e.target.dataset.author.split(", ")[0];
-    const author_f = e.target.dataset.author.split(", ")[1];
+    const author_last = e.target.dataset.author.split(", ")[0];
+    const author_first = e.target.dataset.author.split(", ")[1];
     const title = e.target.dataset.title;
     const format = e.target.dataset.format;
     const newBook = {
-      author_l: author_l,
-      author_f: author_f,
+      author_last: author_last,
+      author_first: author_first,
       title: title,
       format: format,
     };
@@ -125,14 +129,17 @@ const AddApiBook = () => {
       ...newBook,
     }));
     console.log(newBook);
-    queryDB(title, author_l, author_f, format);
+    queryDB(title, author_last, author_first, format);
   };
 
   // send request for metadata to classify
   const handleGET = (e) => {
     e.preventDefault();
+    setIndBook((state) => ({ ...state, isbn: isbn }));
     console.log(`Query classify for ${isbn}`);
+    setDBRes(false);
     setAPIRes(false);
+    setShowRec(false);
     fetch(`/api/request?isbn=${isbn}`, {
       method: "get",
     })
@@ -183,7 +190,7 @@ const AddApiBook = () => {
                   <p>
                     {/* Need to move images to left and text to right */}
                     <img
-                      src={`https://covers.openlibrary.org/b/isbn/${isbn}-S.jpg`}
+                      src={`https://covers.openlibrary.org/b/isbn/${indBook.isbn}-S.jpg`}
                       alt={`${el.title} cover`}
                     />
                     <br />
@@ -211,7 +218,7 @@ const AddApiBook = () => {
                 <div className="single-book" key={1}>
                   <p>
                     <img
-                      src={`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`}
+                      src={`https://covers.openlibrary.org/b/isbn/${indBook.isbn}-M.jpg`}
                       alt={`${books.title} cover`}
                     />
                     <br />
@@ -240,17 +247,17 @@ const AddApiBook = () => {
           <>
             <h3>Your Book Record</h3>
             <img
-              src={`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`}
-              alt={`${collRecord.title} cover`}
+              src={`https://covers.openlibrary.org/b/isbn/${indBook.isbn}-M.jpg`}
+              alt={`${indBook.title} cover`}
             />
             <p>
-              <strong>Title:</strong> {collRecord.title} <br />
-              <strong>Author:</strong> {collRecord.author_f}{" "}
-              {collRecord.author_l}
+              <strong>Title:</strong> {indBook.title} <br />
+              <strong>Author:</strong> {indBook.author_first}{" "}
+              {indBook.author_last}
               <br />
-              <strong>Format:</strong> {collRecord.format} <br />
-              <strong>Owned:</strong> {collRecord.owned} <br />
-              <strong>Read:</strong> {collRecord.read}
+              <strong>Format:</strong> {indBook.format} <br />
+              <strong>Owned:</strong> {indBook.owned} <br />
+              <strong>Read:</strong> {indBook.read}
             </p>
           </>
         ) : null}
