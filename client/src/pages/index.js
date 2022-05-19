@@ -5,8 +5,7 @@ const Home = () => {
     <div
       style={{
         display: "flex",
-        justifyContent: "Right",
-        alignItems: "Right",
+        justifyContent: "center",
         height: "100vh",
       }}
     >

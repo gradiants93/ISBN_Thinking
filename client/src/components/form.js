@@ -80,6 +80,7 @@ const Form = (props) => {
               <input
                 type="radio"
                 fieldName="owned"
+                name="owned"
                 value="true"
                 checked={book.owned === true}
                 onChange={handleChange}
@@ -90,6 +91,7 @@ const Form = (props) => {
               <input
                 type="radio"
                 fieldName="owned"
+                name="owned"
                 value="false"
                 checked={book.owned === false}
                 onChange={handleChange}
@@ -103,8 +105,10 @@ const Form = (props) => {
               <input
                 type="radio"
                 fieldName="read"
+                name="read"
                 required
-                value={book.read}
+                value="true"
+                checked={book.read === true}
                 onChange={handleChange}
               />
               Yes
@@ -113,8 +117,10 @@ const Form = (props) => {
               <input
                 type="radio"
                 fieldName="read"
+                name="read"
                 required
-                value={book.read}
+                value="false"
+                checked={book.read === false}
                 onChange={handleChange}
               />
               No

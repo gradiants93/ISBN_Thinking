@@ -4,8 +4,8 @@ const AddNewBook = () => {
   // Initial book
   const initialBook = {
     title: "",
-    author_f: "",
-    author_l: "",
+    author_first: "",
+    author_last: "",
     format: "",
     owned: "",
     read: "",
@@ -23,11 +23,14 @@ const AddNewBook = () => {
   };
 
   //create functions that handle the event of the user typing into the form
-  const handleChange = (event, fieldName, isBoolean = false) => {
+  const handleChange = (event, isBoolean = false) => {
     const parsedValue = isBoolean
       ? str2bool(event.target.value)
       : event.target.value;
-    setBook((book) => ({ ...book, [fieldName]: parsedValue }));
+    setBook((book) => ({
+      ...book,
+      [event.target.dataset.fieldname]: parsedValue,
+    }));
   };
 
   //A function to handle the post request
@@ -52,6 +55,7 @@ const AddNewBook = () => {
   };
   return (
     <div
+      className="component-page"
       style={{
         display: "flex",
         justifyContent: "Right",
@@ -68,7 +72,7 @@ const AddNewBook = () => {
               Title
               <input
                 type="text"
-                fieldName="title"
+                data-fieldname="title"
                 placeholder="Title"
                 required
                 value={book.title}
@@ -80,10 +84,10 @@ const AddNewBook = () => {
               Author Last
               <input
                 type="text"
-                fieldName="author_l"
+                data-fieldname="author_last"
                 placeholder="Author Last Name"
                 required
-                value={book.author_l}
+                value={book.author_last}
                 onChange={handleChange}
               />
             </label>
@@ -92,10 +96,10 @@ const AddNewBook = () => {
               Author First
               <input
                 type="text"
-                fieldName="author_f"
+                data-fieldname="author_first"
                 placeholder="Author First and Middle Name"
                 required
-                value={book.author_f}
+                value={book.author_first}
                 onChange={handleChange}
               />
             </label>
@@ -105,7 +109,7 @@ const AddNewBook = () => {
               ISBN-13
               <input
                 type="text"
-                fieldName="isbn"
+                data-fieldname="isbn"
                 placeholder="ISBN-13"
                 required
                 value={book.isbn}
@@ -113,12 +117,14 @@ const AddNewBook = () => {
               />
             </label>
           </fieldset>
-          <fieldset style={{ display: "inline" }}>
+          <fieldset className="radio-form" style={{ display: "inline" }}>
             <legend>Format?</legend>
             <label>
               <input
                 type="radio"
-                fieldName="format"
+                name="format"
+                required
+                data-fieldname="format"
                 value="eBook"
                 onChange={handleChange}
               />
@@ -127,7 +133,8 @@ const AddNewBook = () => {
             <label>
               <input
                 type="radio"
-                fieldName="format"
+                name="format"
+                data-fieldname="format"
                 value="Book"
                 onChange={handleChange}
               />
@@ -136,51 +143,64 @@ const AddNewBook = () => {
             <label>
               <input
                 type="radio"
-                fieldName="format"
+                name="format"
+                data-fieldname="format"
                 value="Audiobook"
                 onChange={handleChange}
               />
               Audiobook
             </label>
           </fieldset>
-          <fieldset style={{ display: "inline" }}>
+          <fieldset className="radio-form" style={{ display: "inline" }}>
             <legend>Owned?</legend>
             <label>
               <input
                 type="radio"
-                fieldName="owned"
+                name="owned"
+                data-fieldname="owned"
                 value="true"
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e, true);
+                }}
               />
               Yes
             </label>
             <label>
               <input
                 type="radio"
-                fieldName="owned"
+                name="owned"
+                data-fieldname="owned"
                 value="false"
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e, true);
+                }}
               />
               No
             </label>
           </fieldset>
-          <fieldset style={{ display: "inline" }}>
+          <fieldset className="radio-form" style={{ display: "inline" }}>
             <legend> Read?</legend>
             <label>
               <input
                 type="radio"
-                fieldName="read"
+                name="read"
+                data-fieldname="read"
                 value="true"
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e, true);
+                }}
               />
               Yes
             </label>
             <label>
               <input
                 type="radio"
-                fieldName="read"
+                name="read"
+                data-fieldname="read"
                 value="false"
-                onChange={handleChange}
+                onChange={(e) => {
+                  handleChange(e, true);
+                }}
               />
               No
             </label>

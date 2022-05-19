@@ -32,11 +32,6 @@ function BookList() {
     });
   };
 
-  // A function to handle the Add a new Book funtionality
-  const addBook = (newBook) => {
-    setBooks((books) => [...books, newBook]);
-  };
-
   // A function to update the list of books when the user edits a book
   const updateBook = (savedBook) => {
     setBooks((books) => {
@@ -95,8 +90,6 @@ function BookList() {
           }
         })}
       </ul>
-      {/* add a new book */}
-      {/* <Form saveBook={addBook} /> */}
     </div>
   );
 }
