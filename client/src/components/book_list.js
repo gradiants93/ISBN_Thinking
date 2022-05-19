@@ -61,8 +61,6 @@ function BookList() {
 
   return (
     <div className="books">
-      {/* <h2> List of Books </h2> */}
-
       <ul>
         <div>
           <h3>Sort by:</h3>
@@ -104,6 +102,9 @@ function BookList() {
           </button>
           <button onClick={() => setFilteredBooks(null)}>Reset</button>
         </div>
+        <br />
+        <hr />
+        <br />
         {filteredBooks
           ? filteredBooks.map((book) => {
               if (book.id === editingBookId) {
@@ -135,29 +136,39 @@ function BookList() {
               }
             })
           : books.map((book) => {
-              return (
-                <li key={book.id}>
-                  {" "}
-                  {book.title} {book.author_f} {book.author_l} {book.format}{" "}
-                  {book.owned.toString()} {book.read.toString()}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onDelete(book);
-                    }}
-                  >
-                    X
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onEdit(book);
-                    }}
-                  >
-                    Edit
-                  </button>
-                </li>
-              );
+              if (book.id === editingBookId) {
+                return (
+                  <Form
+                    initialBook={book}
+                    saveBook={updateBook}
+                    key={book.id}
+                  />
+                );
+              } else {
+                return (
+                  <li key={book.id}>
+                    {" "}
+                    {book.title} {book.author_f} {book.author_l} {book.format}{" "}
+                    {book.owned.toString()} {book.read.toString()}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onDelete(book);
+                      }}
+                    >
+                      X
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onEdit(book);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </li>
+                );
+              }
             })}
       </ul>
     </div>

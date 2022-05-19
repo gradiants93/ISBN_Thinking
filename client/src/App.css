@@ -27,18 +27,21 @@ ul {
   list-style: none;
 }
 .component-page {
-  display: "flex";
-  justify-content: "Right";
-  height: "100vh";
-  flex-direction: "column";
-  align-items: "center";
+  display: flex;
+  justify-content: Right;
+  height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  background-color: rgb(14, 105, 64);
 }
 
 .individual-book {
-  display: "flex";
-  align-items: "center";
+  display: flex;
+  align-items: center;
+  background-color: darkslateblue;
 }
 
-fieldset.radio-form {
-  display: "inline";
+.radio-form {
+  display: inline;
+  background-color: rgb(55, 39, 174);
 }

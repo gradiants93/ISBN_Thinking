@@ -5,8 +5,8 @@ const Form = (props) => {
   const {
     initialBook = {
       id: null,
-      author_f: "",
-      author_l: "",
+      author_first: "",
+      author_last: "",
       format: "",
       owned: "",
       read: "",
@@ -22,11 +22,12 @@ const Form = (props) => {
     return value;
   };
   //create functions that handle the event of the user typing into the form
-  const handleChange = (event, fieldName, isBoolean = false) => {
-    const parsedValue = isBoolean
-      ? str2bool(event.target.value)
-      : event.target.value;
-    setBook((book) => ({ ...book, [fieldName]: parsedValue }));
+  const handleChange = (event) => {
+    const parsedValue = str2bool(event.target.value);
+    setBook((book) => ({
+      ...book,
+      [event.target.dataset.fieldname]: parsedValue,
+    }));
   };
   //A function to handle the post request
   const postBook = (newBook) => {
@@ -73,60 +74,58 @@ const Form = (props) => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <p>
-          <fieldset style={{ display: "inline" }}>
-            <legend>Owned?</legend>
-            <label>
-              <input
-                type="radio"
-                fieldName="owned"
-                name="owned"
-                value="true"
-                checked={book.owned === true}
-                onChange={handleChange}
-              />
-              Yes
-            </label>
-            <label>
-              <input
-                type="radio"
-                fieldName="owned"
-                name="owned"
-                value="false"
-                checked={book.owned === false}
-                onChange={handleChange}
-              />
-              No
-            </label>
-          </fieldset>
-          <fieldset style={{ display: "inline" }}>
-            <legend> Read?</legend>
-            <label>
-              <input
-                type="radio"
-                fieldName="read"
-                name="read"
-                required
-                value="true"
-                checked={book.read === true}
-                onChange={handleChange}
-              />
-              Yes
-            </label>
-            <label>
-              <input
-                type="radio"
-                fieldName="read"
-                name="read"
-                required
-                value="false"
-                checked={book.read === false}
-                onChange={handleChange}
-              />
-              No
-            </label>
-          </fieldset>
-        </p>
+        <fieldset className="radio-form">
+          <legend>Owned?</legend>
+          <label>
+            <input
+              type="radio"
+              fata-fieldname="owned"
+              name="owned"
+              value="true"
+              checked={book.owned === true}
+              onChange={handleChange}
+            />
+            Yes
+          </label>
+          <label>
+            <input
+              type="radio"
+              data-fieldname="owned"
+              name="owned"
+              value="false"
+              checked={book.owned === false}
+              onChange={handleChange}
+            />
+            No
+          </label>
+        </fieldset>
+        <fieldset className="radio-form">
+          <legend> Read?</legend>
+          <label>
+            <input
+              type="radio"
+              data-fieldname="read"
+              name="read"
+              required
+              value="true"
+              checked={book.read === true}
+              onChange={handleChange}
+            />
+            Yes
+          </label>
+          <label>
+            <input
+              type="radio"
+              data-fieldname="read"
+              name="read"
+              required
+              value="false"
+              checked={book.read === false}
+              onChange={handleChange}
+            />
+            No
+          </label>
+        </fieldset>
         <button type="submit">{!book.id ? "Add" : "Save"}</button>
       </form>
     </div>
