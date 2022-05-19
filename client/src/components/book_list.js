@@ -6,7 +6,7 @@ function BookList() {
   const [books, setBooks] = useState([]);
 
   // State for selected filter
-  const [filteredBooks, setFilteredBooks] = useState([]);
+  const [filteredBooks, setFilteredBooks] = useState(null);
 
   // New state to check if we are working on editing a book
   const [editingBookId, setEditingBookId] = useState(null);
@@ -77,24 +77,6 @@ function BookList() {
           <button
             onClick={() =>
               setFilteredBooks(
-                books.filter((event) => event.read.toString() === "true")
-              )
-            }
-          >
-            Read
-          </button>
-          <button
-            onClick={() =>
-              setFilteredBooks(
-                books.filter((event) => event.read.toString() === "false")
-              )
-            }
-          >
-            Haven't Read
-          </button>
-          <button
-            onClick={() =>
-              setFilteredBooks(
                 books.filter((event) => event.owned.toString() === "true")
               )
             }
@@ -110,13 +92,57 @@ function BookList() {
           >
             Not Owned
           </button>
-          <button onClick={() => setFilteredBooks(books)}>Reset</button>
+          <button
+            onClick={() =>
+              setFilteredBooks(
+                books.filter((event) => event.read.toString() === "true")
+              )
+            }
+          >
+            Read
+          </button>
+          <button
+            onClick={() =>
+              setFilteredBooks(
+                books.filter((event) => event.read.toString() === "false")
+              )
+            }
+          >
+            Haven't Read
+          </button>
+          <button onClick={() => setFilteredBooks(null)}>Reset</button>
         </div>
-        {filteredBooks &&
-          filteredBooks.map((book) => {
-            if (book.id === editingBookId) {
-              return <Form initialBook={book} saveBook={updateBook} />;
-            } else {
+        {filteredBooks
+          ? filteredBooks.map((book) => {
+              if (book.id === editingBookId) {
+                return <Form initialBook={book} saveBook={updateBook} />;
+              } else {
+                return (
+                  <li key={book.id}>
+                    {" "}
+                    {book.title} {book.author_f} {book.author_l} {book.format}{" "}
+                    {book.owned.toString()} {book.read.toString()}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onDelete(book);
+                      }}
+                    >
+                      X
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onEdit(book);
+                      }}
+                    >
+                      Edit
+                    </button>
+                  </li>
+                );
+              }
+            })
+          : books.map((book) => {
               return (
                 <li key={book.id}>
                   {" "}
@@ -140,8 +166,7 @@ function BookList() {
                   </button>
                 </li>
               );
-            }
-          })}
+            })}
       </ul>
       {/* add a new book */}
       {/* <Form saveBook={addBook} /> */}
