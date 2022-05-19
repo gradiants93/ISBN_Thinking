@@ -29,7 +29,7 @@ CREATE TABLE public.book_formats (
     isbn character varying(13),
     format character varying(9),
     book_id integer,
-    creation_date date DEFAULT TO_CHAR(CURRENT_TIMESTAMP,'YYYYMMDD')
+    creation_date character varying(10) DEFAULT to_char(CURRENT_TIMESTAMP, 'YYYYMMDD'::text)
 );
 
 
@@ -66,7 +66,7 @@ CREATE TABLE public.books (
     title character varying(250),
     author_last character varying(250),
     author_first character varying(250),
-    creation_date date DEFAULT TO_CHAR(CURRENT_TIMESTAMP,'YYYYMMDD')
+    creation_date character varying(10) DEFAULT to_char(CURRENT_TIMESTAMP, 'YYYYMMDD'::text)
 );
 
 
@@ -103,7 +103,7 @@ CREATE TABLE public.user_collection (
     book_format_id integer,
     owned boolean,
     read boolean,
-    creation_date date DEFAULT TO_CHAR(CURRENT_TIMESTAMP,'YYYYMMDD')
+    creation_date character varying(10) DEFAULT to_char(CURRENT_TIMESTAMP, 'YYYYMMDD'::text)
 );
 
 
@@ -157,9 +157,9 @@ ALTER TABLE ONLY public.user_collection ALTER COLUMN id SET DEFAULT nextval('pub
 --
 
 COPY public.book_formats (id, isbn, format, book_id, creation_date) FROM stdin;
-1	9780451464965	Book	1	2022-04-26
-2	9781101604717	Audiobook	1	2022-04-26
-3	9780553096095	Book	2	2022-04-26
+18	9780886772390	Book	22	20220516
+19	9780345500892	Book	23	20220516
+21	9781407188225	Book	25	20220517
 \.
 
 
@@ -168,8 +168,9 @@ COPY public.book_formats (id, isbn, format, book_id, creation_date) FROM stdin;
 --
 
 COPY public.books (id, title, author_last, author_first, creation_date) FROM stdin;
-1	Written in Red	Bishop	Anne	2022-04-26
-2	The Diamond Age: Or, a Young Lady's Illustrated Primer	Stephenson	Neal	2022-04-26
+22	Hawkmistress!	Zimmer-Bradley	Marion	20220516
+23	Dragon's time	McCaffrey	Anne	20220516
+25	Imposters	Westerfeld	Scott	20220517
 \.
 
 
@@ -178,10 +179,9 @@ COPY public.books (id, title, author_last, author_first, creation_date) FROM std
 --
 
 COPY public.user_collection (id, book_format_id, owned, read, creation_date) FROM stdin;
-2	2	f	t	2022-04-26
-1	1	f	t	2022-04-26
-3	3	t	t	2022-04-26
-4	\N	t	f	2022-05-02
+12	18	t	f	20220516
+13	19	f	f	20220516
+20	21	t	f	20220518
 \.
 
 
@@ -189,21 +189,21 @@ COPY public.user_collection (id, book_format_id, owned, read, creation_date) FRO
 -- Name: book_formats_id_seq; Type: SEQUENCE SET; Schema: public; Owner: eileen
 --
 
-SELECT pg_catalog.setval('public.book_formats_id_seq', 3, true);
+SELECT pg_catalog.setval('public.book_formats_id_seq', 23, true);
 
 
 --
 -- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: eileen
 --
 
-SELECT pg_catalog.setval('public.books_id_seq', 1, false);
+SELECT pg_catalog.setval('public.books_id_seq', 27, true);
 
 
 --
 -- Name: user_collection_id_seq; Type: SEQUENCE SET; Schema: public; Owner: eileen
 --
 
-SELECT pg_catalog.setval('public.user_collection_id_seq', 4, true);
+SELECT pg_catalog.setval('public.user_collection_id_seq', 20, true);
 
 
 --
