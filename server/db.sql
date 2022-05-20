@@ -160,6 +160,8 @@ COPY public.book_formats (id, isbn, format, book_id, creation_date) FROM stdin;
 18	9780886772390	Book	22	20220516
 19	9780345500892	Book	23	20220516
 21	9781407188225	Book	25	20220517
+24	9780007137305	Book	28	20220519
+25	9780802130112	Book	29	20220519
 \.
 
 
@@ -171,6 +173,8 @@ COPY public.books (id, title, author_last, author_first, creation_date) FROM std
 22	Hawkmistress!	Zimmer-Bradley	Marion	20220516
 23	Dragon's time	McCaffrey	Anne	20220516
 25	Imposters	Westerfeld	Scott	20220517
+28	Sabriel	Nix	Garth	20220519
+29	The master and Margarita	Bulgakov	Mikhail	20220519
 \.
 
 
@@ -179,9 +183,10 @@ COPY public.books (id, title, author_last, author_first, creation_date) FROM std
 --
 
 COPY public.user_collection (id, book_format_id, owned, read, creation_date) FROM stdin;
-12	18	t	f	20220516
-13	19	f	f	20220516
 20	21	t	f	20220518
+13	19	f	f	20220516
+12	18	t	f	20220516
+22	25	f	f	20220519
 \.
 
 
@@ -189,21 +194,21 @@ COPY public.user_collection (id, book_format_id, owned, read, creation_date) FRO
 -- Name: book_formats_id_seq; Type: SEQUENCE SET; Schema: public; Owner: eileen
 --
 
-SELECT pg_catalog.setval('public.book_formats_id_seq', 23, true);
+SELECT pg_catalog.setval('public.book_formats_id_seq', 25, true);
 
 
 --
 -- Name: books_id_seq; Type: SEQUENCE SET; Schema: public; Owner: eileen
 --
 
-SELECT pg_catalog.setval('public.books_id_seq', 27, true);
+SELECT pg_catalog.setval('public.books_id_seq', 29, true);
 
 
 --
 -- Name: user_collection_id_seq; Type: SEQUENCE SET; Schema: public; Owner: eileen
 --
 
-SELECT pg_catalog.setval('public.user_collection_id_seq', 20, true);
+SELECT pg_catalog.setval('public.user_collection_id_seq', 22, true);
 
 
 --
