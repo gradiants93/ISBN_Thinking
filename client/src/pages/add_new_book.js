@@ -54,16 +54,7 @@ const AddNewBook = () => {
     postNewBook(book);
   };
   return (
-    <div
-      className="component-page"
-      style={{
-        display: "flex",
-        justifyContent: "Right",
-        height: "100vh",
-        flexDirection: "column",
-        alignItems: "center",
-      }}
-    >
+    <div className="component-page">
       <h1>Add a Book</h1>
       <div>
         <form onSubmit={handleSubmit}>

@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./page.css";
 
 const SearchBook = () => {
   const [books, setBooks] = useState([]);

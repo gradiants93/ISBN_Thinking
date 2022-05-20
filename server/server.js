@@ -210,7 +210,8 @@ app.get(
         console.log(result.rows[0]);
         if (result.rows[0] === undefined) {
           console.log("No record of format");
-          result.rows[0].id = undefined;
+          console.log(result.rows);
+          return undefined;
         }
         return result.rows[0].id;
       }

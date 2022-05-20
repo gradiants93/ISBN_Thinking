@@ -19,6 +19,14 @@ function BookList() {
       });
   };
 
+  const bool2str = (value) => {
+    if (typeof value === "boolean") {
+      if (value) return "Yes";
+      if (!value) return "No";
+    }
+    return value;
+  };
+
   // Use effect hook to render the books in the app. This will change any time that our initial state change
   useEffect(() => {
     loadBooks();
@@ -36,18 +44,19 @@ function BookList() {
   };
 
   // A function to update the list of books when the user edits a book
-  const updateBook = (savedBook) => {
-    setBooks((books) => {
-      const newBooks = [];
-      for (let book of books) {
-        if (book.id === savedBook.id) {
-          newBooks.push(savedBook);
-        } else {
-          newBooks.push(book);
-        }
-      }
-      return newBooks;
-    });
+  const refreshBooks = () => {
+    // setBooks((books) => {
+    //   const newBooks = [];
+    //   for (let book of books) {
+    //     if (book.id === savedBook.id) {
+    //       newBooks.push(savedBook);
+    //     } else {
+    //       newBooks.push(book);
+    //     }
+    //   }
+    //   return newBooks;
+    // });
+    loadBooks();
 
     // This line is just to close the form!
     setEditingBookId(null);
@@ -61,103 +70,193 @@ function BookList() {
 
   return (
     <div className="books">
-      {/* <h2> List of Books </h2> */}
-
+      <div key={"buttons"}>
+        <h3>Sort by:</h3>
+        <button
+          onClick={() =>
+            setFilteredBooks(
+              books.filter((event) => event.owned.toString() === "true")
+            )
+          }
+        >
+          Owned
+        </button>
+        <button
+          onClick={() =>
+            setFilteredBooks(
+              books.filter((event) => event.owned.toString() === "false")
+            )
+          }
+        >
+          Not Owned
+        </button>
+        <button
+          onClick={() =>
+            setFilteredBooks(
+              books.filter((event) => event.read.toString() === "true")
+            )
+          }
+        >
+          Read
+        </button>
+        <button
+          onClick={() =>
+            setFilteredBooks(
+              books.filter((event) => event.read.toString() === "false")
+            )
+          }
+        >
+          Haven't Read
+        </button>
+        <button onClick={() => setFilteredBooks(null)}>Reset</button>
+      </div>
+      <br />
+      <hr />
+      <br />
       <ul>
-        <div>
-          <h3>Sort by:</h3>
-          <button
-            onClick={() =>
-              setFilteredBooks(
-                books.filter((event) => event.owned.toString() === "true")
-              )
-            }
-          >
-            Owned
-          </button>
-          <button
-            onClick={() =>
-              setFilteredBooks(
-                books.filter((event) => event.owned.toString() === "false")
-              )
-            }
-          >
-            Not Owned
-          </button>
-          <button
-            onClick={() =>
-              setFilteredBooks(
-                books.filter((event) => event.read.toString() === "true")
-              )
-            }
-          >
-            Read
-          </button>
-          <button
-            onClick={() =>
-              setFilteredBooks(
-                books.filter((event) => event.read.toString() === "false")
-              )
-            }
-          >
-            Haven't Read
-          </button>
-          <button onClick={() => setFilteredBooks(null)}>Reset</button>
-        </div>
         {filteredBooks
           ? filteredBooks.map((book) => {
               if (book.id === editingBookId) {
-                return <Form initialBook={book} saveBook={updateBook} />;
+                return (
+                  <div
+                    className="individual-book"
+                    key={`filter edit ${book.id}`}
+                  >
+                    <li>
+                      <img
+                        src={`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`}
+                        alt={`${book.title} cover`}
+                      />
+                      <p>
+                        <strong>Title:</strong> {book.title}
+                        <br />
+                        <strong>Author:</strong> {book.author_first}{" "}
+                        {book.author_last}
+                        <br />
+                        <strong>Format:</strong> {book.format}
+                        <br />
+                      </p>
+                      <br />
+                      <hr />
+                      <br />
+                    </li>
+                    <Form initialBook={book} refreshBooks={refreshBooks} />
+                  </div>
+                );
               } else {
                 return (
-                  <li key={book.id}>
-                    {" "}
-                    {book.title} {book.author_f} {book.author_l} {book.format}{" "}
-                    {book.owned.toString()} {book.read.toString()}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onDelete(book);
-                      }}
-                    >
-                      X
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        onEdit(book);
-                      }}
-                    >
-                      Edit
-                    </button>
-                  </li>
+                  <div className="individual-book">
+                    <li key={`filtered ${book.id}`}>
+                      <img
+                        src={`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`}
+                        alt={`${book.title} cover`}
+                      />
+                      <p>
+                        <strong>Title:</strong> {book.title}
+                        <br />
+                        <strong>Author:</strong> {book.author_first}{" "}
+                        {book.author_last}
+                        <br />
+                        <strong>Format:</strong> {book.format}
+                        <br />
+                        <strong>Owned:</strong> {bool2str(book.owned)}
+                        <br />
+                        <strong>Read:</strong> {bool2str(book.read)}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onDelete(book);
+                        }}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onEdit(book);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <br />
+                      <hr />
+                      <br />
+                    </li>
+                  </div>
                 );
               }
             })
           : books.map((book) => {
-              return (
-                <li key={book.id}>
-                  {" "}
-                  {book.title} {book.author_f} {book.author_l} {book.format}{" "}
-                  {book.owned.toString()} {book.read.toString()}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onDelete(book);
-                    }}
-                  >
-                    X
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      onEdit(book);
-                    }}
-                  >
-                    Edit
-                  </button>
-                </li>
-              );
+              if (book.id === editingBookId) {
+                return (
+                  <div className="individual-book" key={`edit ${book.id}`}>
+                    <li>
+                      <img
+                        src={`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`}
+                        alt={`${book.title} cover`}
+                      />
+                      <p>
+                        <strong>Title:</strong> {book.title}
+                        <br />
+                        <strong>Author:</strong> {book.author_first}{" "}
+                        {book.author_last}
+                        <br />
+                        <strong>Format:</strong> {book.format}
+                        <br />
+                      </p>
+                      <br />
+                      <hr />
+                      <br />
+                    </li>
+                    <Form initialBook={book} refreshBooks={refreshBooks} />
+                  </div>
+                );
+              } else {
+                return (
+                  <div className="individual-book" key={book.id}>
+                    <li>
+                      <img
+                        src={`https://covers.openlibrary.org/b/isbn/${book.isbn}-M.jpg`}
+                        alt={`${book.title} cover`}
+                      />
+                      <p>
+                        <strong>Title:</strong> {book.title}
+                        <br />
+                        <strong>Author:</strong> {book.author_first}{" "}
+                        {book.author_last}
+                        <br />
+                        <strong>Format:</strong> {book.format}
+                        <br />
+                        <strong>Owned:</strong> {bool2str(book.owned)}
+                        <br />
+                        <strong>Read:</strong> {bool2str(book.read)}
+                      </p>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onDelete(book);
+                        }}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onEdit(book);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <br />
+                      <hr />
+                      <br />
+                    </li>
+                  </div>
+                );
+              }
             })}
       </ul>
     </div>

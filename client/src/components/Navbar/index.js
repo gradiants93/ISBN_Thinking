@@ -7,11 +7,11 @@ const Navbar = () => {
       <Nav>
         <NavMenu>
           <NavLink exact to="/">
-            Home
+            HOME
           </NavLink>
-          <NavLink to="/books">Books</NavLink>
-          <NavLink to="/addnewbook">Add A Book</NavLink>
-          <NavLink to="/search">Search</NavLink>
+          <NavLink to="/books">BOOKS</NavLink>
+          <NavLink to="/addnewbook">ADD A BOOK</NavLink>
+          <NavLink to="/search">SEARCH</NavLink>
         </NavMenu>
       </Nav>
     </>
