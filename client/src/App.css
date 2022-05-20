@@ -28,7 +28,7 @@ ul {
 .component-page {
   display: flex;
   justify-content: Right;
-  height: 100vh;
+  /* height: 100vh; */
   flex-direction: column;
   align-items: center;
   background-color: #fff9eb;
