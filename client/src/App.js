@@ -1,5 +1,4 @@
 import "./App.css";
-import "./pages/page.css";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages";
@@ -12,14 +11,12 @@ function App() {
     <Router>
       <Navbar />
 
-      <div>
-        <Switch>
-          <Route path="/" exact component={Home} />
-          <Route path="/books" component={Books} />
-          <Route path="/addnewbook" component={AddNewBook} />
-          <Route path="/search" component={SearchBook} />
-        </Switch>
-      </div>
+      <Switch>
+        <Route path="/" exact component={Home} />
+        <Route path="/books" component={Books} />
+        <Route path="/addnewbook" component={AddNewBook} />
+        <Route path="/search" component={SearchBook} />
+      </Switch>
     </Router>
   );
 }
