@@ -1,6 +1,5 @@
 .App {
   text-align: center;
-  font-family: "Marcellus", serif;
 }
 
 .App-logo {
@@ -32,30 +31,27 @@ ul {
   height: 100vh;
   flex-direction: column;
   align-items: center;
-  /* background-color: rgb(14, 105, 64); */
+  background-color: #fff9eb;
+}
+div.component-page.hero-text {
+  background-color: unset;
 }
 
 .individual-book {
   display: flex;
   align-items: center;
-  /* background-color: darkslateblue; */
 }
 
 .radio-form {
   display: inline;
-  /* background-color: rgb(55, 39, 174); */
 }
 .hero {
-  /* background-image: url("../public/bookshelfhero.jpg"); */
-  /* background-repeat: no-repeat; */
-  /* background-size: cover; */
   height: 100vh;
   width: 100vw;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* background-position: 50% 50%; */
 }
 .hero::before {
   content: "";
@@ -72,15 +68,8 @@ ul {
 }
 .hero-text {
   color: white;
-  /* margin: 0.625rem; */
-  /* height: 25%;
-  width: 90%;
-  align-items: center;
-  justify-content: center;
-  flex-direction: column; */
   position: relative;
   text-align: center;
+  align-content: center;
   font-size: 3rem;
-  /* top: 10%;
-  left: 5%; */
 }
