@@ -1,77 +1,89 @@
-# ISBN Thinking
+<p align="center">
+  <h1 align="center">ISBN Thinking</h1>
+
+  <p align="center">
+    <a href="https://isbn-thinking.herokuapp.com/">View Demo</a>
+    ·
+    <a href="https://github.com/gradiants93/ISBN_Thinking/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/gradiants93/ISBN_Thinking/issues">Request Feature</a>
+  </p>
+</p>
+
+## Contents
+
+- [About](#about)
+- [Features](#features)
+- [Technologies](#Technologies)
+- [Installation](#Installation)
+
+## About
 
 ISBN Thinking is a library and book list manager. Created as a way to keep myself from getting 4 copies of the same book and keep track of titles that look interesting.
 
-## Description
+## Features
 
-## Pre-requirements
+## Technologies
 
+PostgreSQL
+Express
+React
+Node.JS
 Docker
 
 ## Installation
 
-### To run locally:
+### Prerequisites
 
-## Set Up the Development Environment
+To run ISBN Thinking, you must have installed:
 
-### Install NPM Packages
+- [PostgreSQL](https://www.postgresql.org/)
+- [Docker](https://www.docker.com/)
+- [Node.js](https://nodejs.org/en/)
 
-```
-npm install
-```
+### Run ISBN Thinking on your local computer
 
-### Set Up `postgres` User Password and Database Name
-
-We need to set up couple pieces of information in order to start a new
-PostgreSQL server instance, as well as to connect to it later from the Express
-server.
-
-1. Copy the example environment file
+1. Clone or fork repository inside your desired source directory:
 
    ```sh
-   cp .env.example .env
+   git clone https://github.com/gradiants93/ISBN_Thinking/
    ```
 
-2. You can choose to edit `.env` or just use as-is.
+2. Clean the owner git by running this command in the root folder:
 
-[See the PostgreSQL Docker image documentation for more
-information][dh-postgres].
+   ```sh
+   rm -rf .git
+   ```
 
-### Initialize the Database
+3. Inside the root folder, install all dependecies:
 
-Let's set up the database server, create the application database, and seed it
-with some data. You only need to do this the first time you set up your
-development environment.
+   ```sh
+   npm install
+   ```
 
-```sh
-npm run db:init
-```
+4. Inside the server folder, create a .env file:
 
-ℹ️ If you ever need to start over with the database, you can run this command
-again which will delete your existing data and start from scratch.
+   ```sh
+   touch .env
+   ```
 
-## Start the Development Environment
+5. Copy the contents from the .env.example and paste them into your newly created .env file. Change the values for user/password if necessary for your computer but do not change the name of the database. It should look similar to this:
 
-```sh
-npm start
-```
+   ```sh
+   DATABASE_URL="postgresql://user:password@localhost/isbnthinking"
+   DATABASE_SSL="false"
+   ```
 
-Visit <http://localhost:3000>.
+6. From the server file, restore the database dump file:
 
-## Usage
+   ```sh
+   psql -U postgres -f db.sql
+   ```
 
-### For create the whole project
+7. Go to the client folder and run:
 
-1. Go to your source directory in your terminal and run the command `git clone https://github.com/Yosolita1978/React-Express-PairProgramming.git NAMENEWDIRECTORY`
+   ```sh
+   npm start
+   ```
 
-2. To restore the DB dump file that the project already contain, just run the command `psql -U postgres -f db.sql`. Make sure that you have your Postgres password on hand. The psql console will ask you for your password.
-3. To clean your folder from the owner git, run the command `rm -rf .git`
-4. Run the command `git init` to start your git repository
-5. Go to the server folder in the project (`cd server`) and run the command `npm install`
-6. Inside your server folder, create an .env file with `touch .env`
-7. Inside your server folder, open the file `.env.example` and copy the file there.
-8. Inside your .env file, paste the string from .env.example and change the variables with the values from the project. For this template, don't change the name of your db.
-9. Inside your server file: run the command `psql -U postgres -f db.sql` to restore the DB from the file db.sql
-10. Go to the cliente folder (`cd .. and cd client`) and run the command `npm start`
-11. Both server should run now with `npm start`
-12. Go to localhost:3000 and you should see something like this
+8. Visit <http://localhost:3000> to get started making your lists!
