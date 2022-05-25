@@ -23,6 +23,19 @@ ISBN Thinking is a library and book list manager. Created as a way to keep mysel
 
 ## Features
 
+### Track your reading list
+
+- Keep a running list of things you want to read/have read
+
+### Track your personal library
+
+- Keep track of if you actually own a specific title/format
+
+### Look up a book
+
+- Figure out the author/title/format of a work
+- See if you are already tracking that specific title
+
 ## Technologies
 
 <table align="center">
@@ -121,4 +134,12 @@ To run ISBN Thinking, you must have installed:
 
 8. Visit <https://localhost:3000> to get started making your lists!
 
-## Future Features
+## Future Features - (In no particular order)
+
+- Multiple users
+- Wistlist items
+- Text/send your wishlist to a friend
+- Sort alphabetically
+- API calls via Title, Author
+- Filter by format
+- Search your listings
